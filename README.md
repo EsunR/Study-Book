@@ -18,5 +18,5 @@
 
 ## 其他
 
-- [Go语言 （更新中）](./GoLang-Study)
+- [GoLang （更新中）](./GoLang-Study)
 - [Flask](./Flask-Study)
