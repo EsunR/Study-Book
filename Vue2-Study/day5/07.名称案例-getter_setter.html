@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script src="lib/vue.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    <input type="text" v-model="firstName">
+    <input type="text" v-model="lastName">
+    <!-- 点击按钮重新为 计算属性 fullName 赋值 -->
+    <input type="button" value="重置fullName" @click="changeName">
+
+    <span>{{fullName}}</span>
+  </div>
+
+  <script>
+    // 创建 Vue 实例，得到 ViewModel
+    var vm = new Vue({
+      el: '#app',
+      data: {
+        firstName: 'jack',
+        lastName: 'chen'
+      },
+      methods: {
+        changeName() {
+          this.fullName = 'TOM - chen2';
+        }
+      },
+      computed: {
+        fullName: {
+          get: function () {
+            return this.firstName + ' - ' + this.lastName;
+          },
+          set: function (newVal) {
+            var parts = newVal.split(' - ');
+            this.firstName = parts[0];
+            this.lastName = parts[1];
+          }
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>

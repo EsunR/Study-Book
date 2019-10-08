@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script src="./lib/vue.js"></script>
+</head>
+
+<body>
+  <div id="app">
+
+    <input type="text" v-model="firstname"> +
+    <input type="text" v-model="lastname"> =
+    <input type="text" v-model="fullname">
+
+  </div>
+
+  <script>
+    // 创建 Vue 实例，得到 ViewModel
+    var vm = new Vue({
+      el: '#app',
+      data: {
+        firstname: '',
+        lastname: ''
+      },
+      methods: { },
+      // 在 computed 中， 可以定义一些属性，这些属性叫做【计算属性】，计算属性的本质就是
+      // 一个方法，只不过，我们再使用这些计算属性的时候，是把他们的名称，直接当作属性来使
+      // 用的，并不会吧计算属性当作方法去调用
+      computed: {  
+        // 注意：计算属性在调用的时候，一定不要加()去调用，直接把他当作普通属性去使用就好了
+        // 注意：只要计算属性，这个function内部所用到的任何data中的数据发生了变化，就会立即重新计算这个属性的值
+        'fullname': function(){
+          return this.firstname + '-' + this.lastname;
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>

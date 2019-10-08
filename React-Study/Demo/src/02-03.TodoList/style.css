@@ -1,0 +1,16 @@
+.input {
+  border: 1px solid red;
+}
+
+.fade-enter{
+  opacity: 0;
+}
+
+.fade-enter-active{
+  opacity: 1;
+  transition: opacity 1s ease;
+}
+
+.fade-enter-done{
+  opacity: 1;
+}

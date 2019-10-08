@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="lib/vue.js"></script>
+    <link rel="stylesheet" href="lib/bootstrap-3.3.7.css">
+</head>
+
+<body>
+    <div id="app">
+
+
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">添加品牌</h3>
+            </div>
+            <div class="panel-body form-inline">
+                <label>
+                    ID:
+                    <input type="text" class="form-control" v-model="id">
+                </label>
+
+                <label>
+                    Name:
+                    <input type="text" class="form-control" v-model="name" @keyup.f2="add" />
+                </label>
+
+                <!-- 在@click事件中添加括号就可以传参了 -->
+                <input type="button" value="添加" class="btn btn-primary" @click="add">
+
+                <label>
+                    搜索关键字:
+                    <input type="text" class="form-control" v-model="keywords" v-focus v-color="'blue'">
+                </label>
+            </div>
+        </div>
+
+
+
+        <table class="table table-border table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Ctime</th>
+                    <th>Operation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in search(keywords)" :key="item.id">
+                    <td>{{item.id}}</td>
+                    <td>{{item.name}}</td>
+
+                    <!-- 当dataFormat不传递任何参数时，显示详细时间 -->
+                    <!-- 传入参数"yyyy-mm-dd"时，只显示年月日 -->
+                    <td>{{item.ctime | dateFormat}}</td>
+
+                    <td>
+                        <a href="" @click.prevent="del(item.id)">删除</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+
+
+
+
+
+    </div>
+
+    <script>
+        // // 全局聚过滤器，进行时间格式化
+        // // 所谓的全局过滤器是指所有的VM实例都能共享
+        // Vue.filter('dateFormat', function(dateStr, pattern="detailTime"){
+
+
+        //     // 根据给定的时间字符串得到特定的时间
+        //     var dt = new Date(dateStr);
+
+        //     // yyy-mm-dd
+        //     var y = dt.getFullYear();
+        //     var m = dt.getMonth();
+        //     var d = dt.getDate();
+        //     // return y + '-' + m + '-' + d;
+        //     // 使用ES6模板
+        //     // return `${y}-${m}-${d}`;
+
+        //     // 防止传递空参数，如果传递了空参数，pattern类型为undefined，.toLowerCase方法会报错
+        //     // 方法一：if(pattern && pattern.toLowerCase() === 'yyyy-mm-dd'){
+        //     // 方法二：在filter回调函数写入pattern时给该参数设置一个默认值（ES6）
+        //     if(pattern.toLowerCase() === 'yyyy-mm-dd'){
+        //         return `${y}-${m}-${d}`;
+        //     }else{
+        //         var hh = dt.getHours();
+        //         var mm = dt.getMinutes();
+        //         var ss = dt.getSeconds();
+
+        //         return `${y}-${m}-${d} ${hh}:${mm}:${ss}`;
+        //     }
+        // })
+        
+        // 自定义全局按键修饰符 新版本不需要
+        // Vue.config.keyCodes.f2 = 113;
+
+        // 使用Vue.directive()定义全局指令
+        // 其中：参数1:指令的名称（在定义的时候不需要加前缀"v-"，在调用时必须加前缀）
+        Vue.directive('focus',{
+            inserted: function(el){
+                el.focus();
+            }
+        })
+
+        // 自定义一个设置字体颜色为红色的指令
+        Vue.directive('color', {
+           bind: function(el, binding){
+               el.style.color = binding.value;
+           } 
+        })
+
+        var vm = new Vue({
+            el: '#app',
+
+            data: {
+                id: '',
+                name: '',
+                keywords: '',
+                list: [
+                    { id: 1, name: '奔驰', ctime: new Date() },
+                    { id: 2, name: '宝马', ctime: new Date() }
+                ]
+            },
+
+            methods: {
+                add() { // 添加的方法
+                    var car = { id: this.id, name: this.name, ctime: new Date() }
+                    this.list.push(car);
+                    this.id = this.name = '';
+                },
+                del(id) { // 根据id删除数据
+                    // 方法一：
+                    // some不同于forEach，some可以通过return ture来终止遍历
+                    // this.list.some((item, i)=>{
+                    //     if(item.id == id){
+                    //         this.list.splice(i, 1);
+                    //         return true;
+                    //     }
+                    // })
+
+                    // 方法二：
+                    // findIndex专门用来返回索引值
+                    var index = this.list.findIndex(item => {
+                        if (item.id == id) {
+                            return true;
+                        }
+                    })
+                    this.list.splice(index, 1);
+                },
+                search(keywords) {
+                    // // 方法一： 
+                    // var newList = [];
+                    // this.list.forEach(item=>{
+                    // // indexOf()，参数为关键字，返回值为索引值，-1表示为数组中不包含查询的关键字
+                    //     if(item.name.indexOf(keywords) != -1){
+                    //         newList.push(item);
+                    //     }
+                    // })
+                    // return newList;
+
+                    // 方法二：
+                    // filter是用来过滤的，把查询到的符合条件的返回为一个新数组
+                    var newList = this.list.filter(item => {
+                        // ES6中为字符串提供了一个新方法，叫做 String.prototype.includes('要包含的字符串')，如果包含则返回 true， 否则返回false
+                        if (item.name.includes(keywords)) {
+                            return item;
+                        }
+                    })
+                    return newList;
+                }
+            },
+
+            filters: {  // 定义私有过滤器，过滤器有两个条件，名称和处理函数
+                dateFormat: function (dateStr, pattern = 'detailTime') {
+                    var dt = new Date(dateStr);
+                    var y = dt.getFullYear();
+                    var m = (dt.getMonth() + 1).toString().padStart(2, '0');
+                    var d = dt.getDate().toString().padStart(2, '0');
+                    if (pattern.toLowerCase() === 'yyyy-mm-dd') {
+                        return `${y}-${m}-${d}`;
+                    } else {
+                        var hh = dt.getHours().toString().padStart(2, '0');
+                        var mm = dt.getMinutes().toString().padStart(2, '0');
+                        var ss = dt.getSeconds().toString().padStart(2, '0');
+
+                        return `${y}-${m}-${d} ${hh}:${mm}:${ss}`;
+                    }
+                }
+            },
+        });
+        // Vue.filter('过滤器的名称', function(){})
+        // 过滤器中的 function 第一个参数已经被规定死了，永远是过滤器管道符前面传过来的数据
+        // Vue.filter('过滤器的名称', function(data){
+        //     return data + '123'
+        // })
+        // Vue.filter('过滤器的名称')
+    </script>
+</body>
+
+</html>
+
+
+<!-- 过滤器调用时候的格式 {{ name | nameope }} -->

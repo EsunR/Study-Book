@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script src="lib/vue.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    <!-- 
+      父组件向子组件传递方法使用的是事件绑定机制：v-on
+      当我们定义了一个事件属性之后，那么，子组件就能够
+      通过某些方式，来调用方法
+    -->
+    <com2 @func="show"></com2>
+    <!-- 
+      如果在 @func 中传递一个 show()，那传递过去的方法会立刻被执行 
+      然而我们只需要把方法传递过去就可以了，并不需要再传递时调用该方法
+    -->
+  </div>
+
+  <template id="tmp1">
+    <div>
+      <h1>这是子组件</h1>
+      <input type="button" value="这是子组件中的按钮 - 点击他就出发父组件的方法" @click="myclick">
+    </div>
+  </template>
+
+  <script>
+    // 定义了一个字面类型的 组件模板对象
+    var com2 = {
+      template: '#tmp1', // 通过指定了一个Id，表示说要求加载这个指定的ID的template元素中的内容，当作组件中的HTML结构
+      methods: {
+        myclick(){
+          // emit: 触发，调用，发射
+          this.$emit('func', 111)
+        }
+      },
+      data: function(){
+        return {
+          sonmsg: {
+            name: '大头儿子',
+            age: 6
+          }
+        }
+      }
+    }
+
+    var vm = new Vue({
+      el: '#app',
+      data: {},
+      methods: {
+        show(data){
+          // console.log('调用了父组件的show()方法 -- ' + data );
+          console.log(data);
+        }
+      },
+      components: {
+        com2 // 相当于com2: com2;
+      }
+    });
+  </script>
+</body>
+
+</html>

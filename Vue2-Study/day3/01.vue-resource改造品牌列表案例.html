@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script src="lib/vue.js"></script>
+  <script src="lib/vue-resource.min.js"></script>
+  <link rel="stylesheet" href="lib/bootstrap-3.3.7.css">
+</head>
+
+<body>
+  <div id="app">
+
+
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title">Panel title</h3>
+      </div>
+      <div class="panel-body form-inline">
+        <label>
+          Name:
+          <input type="text" v-model="name" class="form-control">
+        </label>
+        <input type="button" value="添加" @click="add" class="btn btn-primary">
+      </div>
+    </div>
+
+
+    <table class="table table-bordered table-hover table-striped">
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Name</th>
+          <th>Ctime</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="item in list" :key="item.id">
+          <td>{{item.id}}</td>
+          <td>{{item.name}}</td>
+          <td>{{item.ctime}}</td>
+          <td><a href="" @click.prevent="del(item.id)">删除</a></td>
+        </tr>
+      </tbody>
+    </table>
+
+
+  </div>
+
+  <script>
+    // 全局配置AJAX传递数据的路径
+    Vue.http.options.root = 'http://www.liulongbin.top:3005/'
+    // 全局启用emulateJSON选项
+    Vue.http.options.emulateJSON = true;
+
+    var vm = new Vue({
+      el: '#app',
+      data: {
+        name: '',
+        list: [ // 存放所有品牌列表的数组
+          { id: 1, name: '五菱宏光', ctime: new Date() },
+          { id: 2, name: '众泰', ctime: new Date() }
+        ]
+      },
+      methods: {
+        getAllList() { // 获取所有车的品牌列表
+          // 1.由于导入了vue-resource，可以直接使用this.$http来发起请求
+          // 2.发起get请求
+          // 3.this.$http.get('url').then(function(res){});
+          // 4.通过then回调函数，拿到服务器返回的数据
+          // 5.判断result.status是否等于0（0：成功，1：异常），若成功返回结果到list数组中
+          this.$http.get('api/getprodlist').then(res => {
+            let result = res.body;
+            if (result.status === 0) {
+              this.list = result.message;
+            } else {
+              alert('data error');
+            }
+          })
+        },
+        add() {
+          // 分析：
+          // 1. 听过查看 数据API接口，发现，要发送一个 Post 请求，  this.$http.post
+          // 2. this.$http.post() 中接收三个参数：
+          //   2.1 第一个参数： 要请求的URL地址
+          //   2.2 第二个参数： 要提交给服务器的数据 ，要以对象形式提交给服务器 { name: this.name }
+          //   3.3 第三个参数： 是一个配置对象，要以哪种表单数据类型提交过去， { emulateJSON: true }, 以普通表单格式，将数据提交给服务器 application/x-www-form-urlencoded
+          // 3. 在 post 方法中，使用 .then 来设置成功的回调函数，如果想要拿到成功的结果，需要 result.body
+
+          this.$http.post('api/addproduct', { name: this.name }).then(res => {
+            if (res.body.status == 0) {
+              this.getAllList();
+            } else {
+              alert('添加失败')
+            }
+          })
+        },
+        del(id) {
+          this.$http.get('api/delproduct/' + id).then(res => {
+            if(res.body.status === 0){
+              this.getAllList();
+            }else{
+              alert('删除失败')
+            }
+          })
+        }
+      },
+      created() {  // 当vue实例的data和methods初始化完毕后，vm实例会自动执行 created 这个生命周期函数
+        this.getAllList();
+      },
+    });
+  </script>
+</body>
+
+</html>

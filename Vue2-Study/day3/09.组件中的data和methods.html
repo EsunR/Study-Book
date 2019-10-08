@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script src="lib/vue.js"></script>
+</head>
+<body>
+  <div id="app">
+    <mycom1></mycom1>
+  </div>
+
+  <script>
+    // 组件的data必须是个方法，并且方法内部要返回一个对象
+    Vue.component('mycom1', {
+      template: '<h1>This is a component --- {{msg}}</h1>',
+      data: function () {  
+        return{
+          msg: '这是组件中定义的数据'
+        }
+      }
+    })
+
+    var vm = new Vue({
+      el: '#app',
+      data: {
+        test: 1
+      },
+      methods: {}
+    });
+  </script>
+</body>
+</html>

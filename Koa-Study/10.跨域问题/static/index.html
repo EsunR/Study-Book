@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script>
+    // 构造一个简单的 axios
+    class Axios {
+      constructor() {
+        this.xhr = new XMLHttpRequest()
+      }
+      get(url, options = {}) {
+        return new Promise((reslove, reject) => {
+          this.xhr.open("GET", url)
+          if (options.headers) {
+            for (let key in options.headers) {
+              this.xhr.setRequestHeader(key, options.headers[key])
+            }
+          }
+          this.xhr.onreadystatechange = () => {
+            if (this.xhr.readyState === 4) {
+              if (this.xhr.status === 200) {
+                reslove(this.xhr.response)
+              } else {
+                reject(this.xhr.response)
+              }
+            }
+          }
+          this.xhr.send(null)
+        })
+      }
+    }
+    window.onload = function () {
+      let axios = new Axios()
+      let sButton = document.querySelector("#s-button")
+      let usButton = document.querySelector("#us-button")
+      let url = `http://localhost:3000/getData`
+
+      sButton.onclick = function () {
+        axios.get(url).then((result) => {
+          document.querySelector('#s-data').innerHTML = result
+        }).catch((err) => {
+          document.querySelector('#s-data').innerHTML = "Error: " + err
+        });
+      }
+
+      usButton.onclick = function () {
+        axios.get(url, {
+          headers: {
+            Authorization: "token 123456"
+          }
+        }).then((result) => {
+          document.querySelector('#us-data').innerHTML = result
+        }).catch((err) => {
+          document.querySelector('#us-data').innerHTML = "Error: " + err
+        });
+      }
+    }
+  </script>
+</head>
+
+<body>
+  <div class="simple-requset">
+    <button id="s-button">发送简单请求</button>
+    <div>
+      <h5>返回数据：<span id="s-data"></span></h5>
+    </div>
+  </div>
+
+  <div class="unsimple-request">
+    <button id="us-button">发送非简单请求</button>
+    <div>
+      <h5>返回数据：<span id="us-data"></span></h5>
+    </div>
+  </div>
+</body>
+
+</html>

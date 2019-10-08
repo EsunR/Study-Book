@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script src="lib/vue.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    <mycom3></mycom3>
+  </div>
+
+  <!-- 在被控制的#app外边使用template元素定义组件的html模板结构 -->
+  <template id="tmp1">
+    <div>
+      <h1>这个方式有代码提示和高亮</h1>
+      <h4>好用！</h4>
+    </div>
+  </template>
+
+  <script>
+
+    Vue.component('mycom3', {
+      template: '#tmp1'
+    })
+
+    var vm = new Vue({
+      el: '#app',
+      data: {},
+      methods: {}
+    });
+  </script>
+</body>
+
+</html>
