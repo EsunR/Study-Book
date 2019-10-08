@@ -27,6 +27,7 @@
 
 ## 3. 其他
 
+- [痛定思痛的前端知识点&面试经整理](https://github.com/EsunR/KnowledgePoint-Collection)
 - [微信小程序框架试用报告](https://github.com/EsunR/miniprogram-frame-test)
 
 > 不忘初心，一生浪漫
