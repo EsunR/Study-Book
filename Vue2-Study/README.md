@@ -1,8 +1,8 @@
-# Vue 2.0学习记录
-> 视频地址: https://www.bilibili.com/video/av27969216  
+> 视频地址: https://www.bilibili.com/video/av27969216
+> 
 > 新api地址：http://www.liulongbin.top:3005/api/
 
-## 索引
+# 目录
 
 ### Day1
  - `v-cloak`

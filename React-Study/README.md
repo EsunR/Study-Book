@@ -1,6 +1,6 @@
 # 目录
 
-## [02-03. 初探、基础教学](https://github.com/EsunR/React-Study/tree/master/02-03-React%E5%9F%BA%E7%A1%80/README.md)
+## [02-03. 初探、基础教学](./02-03-React基础)
 
 1. 用 Create React App 创建一个 React 应用
 2. 文件结构
@@ -16,7 +16,7 @@
 12. 通过ES6语法引入props
 13. 关于bind与this指向的问题
 
-## [04. React高级内容](https://github.com/EsunR/React-Study/tree/master/04-React%E9%AB%98%E7%BA%A7%E5%86%85%E5%AE%B9/README.md)
+## [04. React高级内容](./04-React高级内容)
 
 1. propTypes属性强校验
 2. defatltProps设置属性默认值
@@ -25,17 +25,17 @@
 5. 在React中使用axios
 6. React中的过度动画
 
-## [05. Redux入门](https://github.com/EsunR/React-Study/tree/master/05-Redux%E5%85%A5%E9%97%A8/README.md)
+## [05. Redux入门](./05-Redux入门)
 
-2. redux概念
-3. 使用AntDesign
-4. Redux的创建与使用
-5. Action和Reducer的编写
-6. ActionType的拆分
-7. 使用ActionCreator统一创建action
-9. 知识点补充
+1. redux概念
+2. 使用AntDesign
+3. Redux的创建与使用
+4. Action和Reducer的编写
+5. ActionType的拆分
+6. 使用ActionCreator统一创建action
+7. 知识点补充
 
-## [06. Redux实战](https://github.com/EsunR/React-Study/blob/master/06-Redux%E5%AE%9E%E6%88%98/README.md)
+## [06. Redux实战](./06-Redux实战)
 
 1. UI组件与容器组件
 2. 无状态组件
