@@ -8,15 +8,17 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"strings"
 )
 
 func postFile(filename string, targetUrl string) error {
-	// 创建一个 Buffer 对象 bodyBuf 准备写入 body 信息
+	// 创建一个 Buffer 对象 bodyBuf 并为其生成一个 multipart Writer 准备写入 body 信息
 	bodyBuf := &bytes.Buffer{}
 	bodyWriter := multipart.NewWriter(bodyBuf)
 
 	// 创建一个 Form File 写入 bodyBuf，将其表单的 fieldname 设置为 "uploadfile"，并记录文件名（此时相当于仅仅拷贝了文件的信息）
-	fileWriter, err := bodyWriter.CreateFormFile("uploadfile", filename)
+	filePath := strings.Split(filename, "/")
+	fileWriter, err := bodyWriter.CreateFormFile("uploadfile", filePath[len(filePath)-1])
 	if err != nil {
 		fmt.Println("error writing to buffer")
 		return err
@@ -58,6 +60,6 @@ func postFile(filename string, targetUrl string) error {
 // sample usage
 func main() {
 	target_url := "http://localhost:9090/upload"
-	filename := "./test.txt"
+	filename := "static/test.txt"
 	_ = postFile(filename, target_url)
 }

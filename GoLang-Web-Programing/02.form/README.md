@@ -242,7 +242,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		defer file.Close()
 		_, _ = fmt.Fprintf(w, "%v", handler.Header)
         // 转存文件
-		f, err := os.OpenFile("./test/"+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666) 
+		f, err := os.OpenFile("./upload/"+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666) 
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -268,4 +268,14 @@ type FileHeader struct {
 ```
 map[Content-Disposition:[form-data; name="uploadfile"; filename="file.pdf"] Content-Type:[application/pdf]]
 ```
+
+# 7. 主动上传
+
+有些场景需要主动上传数据，在这种情况下我们需要“制作”一个携带有 form-data 的 POST 请求，其制作流程主要分为以下几步：
+
+1. 创建一个 Buffer 对象用于写入文件信息
+2. 使用 `multipart.NewWriter` 创建一个 Writer 对象，用来“制作” HTTP 请求的 Body 部分
+3. 打开文件，利用 `io.Copy` 将内容写入开始创建的 Buffer 对象
+4. 创建一个 POST 请求，请求文件上传地址
+
 

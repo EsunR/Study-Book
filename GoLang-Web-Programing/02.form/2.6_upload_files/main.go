@@ -31,7 +31,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		}
 		defer file.Close()
 		_, _ = fmt.Fprintf(w, "%v", handler.Header)
-		f, err := os.OpenFile("./test/"+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666) // 此处假设当前目录下已存在test目录
+		f, err := os.OpenFile("upload/"+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666) // 此处假设当前目录下已存在test目录
 		if err != nil {
 			fmt.Println(err)
 			return
