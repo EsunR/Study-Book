@@ -6,6 +6,7 @@ import (
 )
 
 func CreateUserTable(engine *xorm.Engine) {
+	fmt.Println("=====CreateUserTable=====")
 	var user User
 	err := engine.CreateTables(&user)
 	if err != nil {

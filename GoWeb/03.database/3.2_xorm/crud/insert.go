@@ -6,6 +6,7 @@ import (
 )
 
 func InsertUser(engine *xorm.Engine) {
+	fmt.Println("=====InsertUser=====")
 	var user User
 	user.Name = "huahua"
 	id, err := engine.Insert(&user)

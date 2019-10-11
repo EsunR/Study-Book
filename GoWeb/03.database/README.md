@@ -372,6 +372,27 @@ func InsertUser(engine *xorm.Engine) {
 
   查询单条数据使用`Get`方法，在调用Get方法时需要传入一个对应结构体的指针，同时结构体中的非空field自动成为查询的条件和前面的方法条件组合在一起查询。
 
+  根据Id来获得单条数据：
+
+  ```go
+  user := new(User) // user 是一个地址
+  has, err := engine.Id(id).Get(user)
+  ```
+
+  根据Where来获得单条数据：
+
+  ```go
+  user := new(User)
+  has, err := engine.Where("name=?", "xlw").Get(user)
+  ```
+
+  根据user结构体中已有的非空数据来获得单条数据：
+
+  ```go
+  user := User{Id:1}
+  has, err := engine.Get(&user)
+  ```
+
 - [Find 方法](https://www.kancloud.cn/kancloud/xorm-manual-zh-cn/56005)
 
   查询多条数据使用`Find`方法，Find方法的第一个参数为`slice`的指针或`Map`指针，即为查询后返回的结果，第二个参数可选，为查询的条件struct的指针。
@@ -379,3 +400,50 @@ func InsertUser(engine *xorm.Engine) {
 - [Join 方法](https://www.kancloud.cn/kancloud/xorm-manual-zh-cn/56008)
 - [Count 方法](https://www.kancloud.cn/kancloud/xorm-manual-zh-cn/56011)
 - [Row 方法](https://www.kancloud.cn/kancloud/xorm-manual-zh-cn/56012)
+
+### 2.2.4 更新
+
+更新数据使用`Update`方法，Update方法的第一个参数为需要更新的内容，可以为一个结构体指针或者一个Map[string]interface{}类型。当传入的为结构体指针时，只有非空和0的field才会被作为更新的字段。当传入的为Map类型时，key为数据库Column的名字，value为要更新的内容。
+
+```go
+user := User{Name: "jess"}
+affected, err := engine.Id(id).Update(&user) // user 不会被更改传入更改后的数值
+```
+
+这里需要注意，Update会自动从user结构体中提取非0和非nil得值作为需要更新的内容，因此，如果需要更新一个值为0，则此种方法将无法实现，因此有两种选择：
+
+- 1.通过添加Cols函数指定需要更新结构体中的哪些值，未指定的将不更新，指定了的即使为0也会更新。
+
+```
+affected, err := engine.Id(id).Cols("age").Update(&user)
+```
+
+- 2.通过传入map[string]interface{}来进行更新，**但这时需要使用 `Table` 额外指定更新到哪个表**，因为通过map是无法自动检测更新哪个表的。
+
+```
+affected, err := engine.Table(new(User)).Id(id).Update(map[string]interface{}{"age":0})
+```
+
+[详细文档](https://www.kancloud.cn/kancloud/xorm-manual-zh-cn/56025)
+
+### 2.2.5 删除
+
+删除数据`Delete`方法
+
+```go
+user := new(User)
+affected, err := engine.Id(id).Delete(user) // Delete 参数必须传入一个 User，是为了确定删除数据的所在表
+```
+
+`Delete`的返回值第一个参数为删除的记录数，第二个参数为错误。
+
+`Delete` 的传入参数是一个 struct 的指针，同时还会成为查询条件，我们可以不指定 Id 字段而删除所有 name 为 `huahua` 的人：
+
+```go
+var user User
+user.Name = "huahua"
+affected, err := engine.Delete(&user)
+```
+
+如果既用 `Id` 进行了条件查询，又将传入的 struct 设置了值，那么 xorm 会将两个值合并为一个查询条件去查询，但是如果指定了同一字段的不同值，那么查询结果就为 nil。
+

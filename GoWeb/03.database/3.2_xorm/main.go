@@ -19,4 +19,6 @@ func main() {
 	crud.InsertUser(engine)
 	crud.SearchUserById(engine, 10)
 	crud.SearchUserByWhere(engine)
+	crud.UpdateUserById(engine, 10)
+	crud.DeleteUserById(engine, 11)
 }

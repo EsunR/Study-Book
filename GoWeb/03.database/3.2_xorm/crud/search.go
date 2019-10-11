@@ -6,13 +6,17 @@ import (
 )
 
 func SearchUserById(engine *xorm.Engine, id int) {
-	var user User
-	b, err := engine.Id(id).Get(&user)
+	fmt.Println("=====SearchUserById=====")
+	user := new(User)
+	fmt.Println(user)
+	has, err := engine.Id(1).Get(user)
+	//user := User{Id: 1}
+	//has, err := engine.Get(&user)
 	if err != nil {
 		fmt.Println("查询出错:", err)
 		return
 	}
-	if b {
+	if has {
 		fmt.Println("SearchUserById:", user)
 	} else {
 		fmt.Println("SearchUserById: 未查找到用户")
@@ -20,6 +24,7 @@ func SearchUserById(engine *xorm.Engine, id int) {
 }
 
 func SearchUserByWhere(engine *xorm.Engine) {
+	fmt.Println("=====SearchUserByWhere=====")
 	var user User
 	b, err := engine.Where(`id=10`).Get(&user)
 	if err != nil {
