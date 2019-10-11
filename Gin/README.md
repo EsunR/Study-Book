@@ -206,7 +206,7 @@ router.POST("/form", func(c *gin.Context) {
 
 ## 4. 控制器
 
-### 3.1 数据解析绑定
+### 4.1 数据解析绑定
 
 模型绑定可以将请求体绑定给一个类型，目前支持绑定的类型有 JSON, XML 和标准表单数据 (foo=bar&boo=baz)。
 
@@ -251,6 +251,7 @@ func main() {
 			}
 		}
 	})
+    
 	// 绑定多媒体表单的例子 (user=manu&password=123)
 	router.POST("/login", func(c *gin.Context) {
 		var form LoginForm
@@ -269,28 +270,20 @@ func main() {
 	router.Run(":8080")
 }
 ```
-<a name="request"></a>
-
-### 请求
-<a name="request-header"></a>
+## 5. 请求
 
 - 请求头
 
-<a name="request-params"></a>
-
 - 请求参数
-
-<a name="request-cookie"></a>
 
 - Cookies
 
-<a name="upload"></a>
-
 - 上传文件
 
-```
-router.POST("/upload", func(c *gin.Context) {
+获取文件本身实际上还是借助 Go Web 本身的能力，通过 `c.Request` 获取原生的 Request 对象，从而再调用 `FormFile()` 方法读取上传文件以及获取文件句柄。
 
+```go
+router.POST("/upload", func(c *gin.Context) {
     file, header , err := c.Request.FormFile("upload")
     filename := header.Filename
     fmt.Println(header.Filename)
@@ -305,29 +298,19 @@ router.POST("/upload", func(c *gin.Context) {
     }   
 })
 ```
-<a name="response"></a>
-
 ### 响应
-<a name="response-header"></a>
-
 - 响应头
 
-<a name="response-cookie"></a>
-
 - 附加Cookie
-
-<a name="response-string"></a>
 
 - 字符串响应
 
 ```
 c.String(http.StatusOK, "some string")
 ```
-<a name="response-json"></a>
+- JSON/XML/YAML响应 
 
-- JSON/XML/YAML响应
-
-```
+```go
 r.GET("/moreJSON", func(c *gin.Context) {
 	// You also can use a struct
 	var msg struct {
@@ -347,10 +330,7 @@ r.GET("/moreJSON", func(c *gin.Context) {
 	c.XML(http.StatusOK, msg)
 	c.YAML(http.StatusOK, msg)
 })
-		
 ```
-<a name="response-view"></a>
-
 - 视图响应
 
 先要使用 LoadHTMLTemplates() 方法来加载模板文件
@@ -418,8 +398,6 @@ func main() {
 	router.Run(":8080")
 }
 ```
-<a name="response-file"></a>
-
 - 文件响应
 
 ```
@@ -431,8 +409,6 @@ router.StaticFS("/more_static", http.Dir("my_file_system"))
 router.StaticFile("/favicon.ico", "./resources/favicon.ico")
 
 ```
-<a name="response-redirect"></a>
-
 - 重定向
 
 ```
@@ -441,8 +417,6 @@ r.GET("/redirect", func(c *gin.Context) {
     c.Redirect(http.StatusMovedPermanently, "http://www.baidu.com/")
 })
 ```
-<a name="sync-async"></a>
-
 - 同步异步
 
 goroutine 机制可以方便地实现异步处理
@@ -473,22 +447,12 @@ func main() {
 	r.Run(":8080")
 }
 ```
-<a name="view"></a>
-
 ### 视图
-<a name="view-param"></a>
-
 - 传参
-
-<a name="view-unit"></a>
 
 - 视图组件
 
-<a name="middleware"></a>
-
 ### 中间件
-<a name="middleware-use"></a>
-
 - 分类使用方式
 ```
 // 1.全局中间件
@@ -507,8 +471,6 @@ authorized.Use(MyMiddelware())
 	authorized.POST("/login", loginEndpoint)
 }
 ```
-<a name="middleware-create"></a>
-
 - 自定义中间件
 
 ```go
@@ -551,8 +513,6 @@ func main() {
 }
 ```
 
-<a name="middleware-param"></a>
-
 - 中间件参数
 
 - 内置中间件
@@ -593,12 +553,7 @@ func main() {
 }
 ```
 
-2.
-<a name="db"></a>
-
 ### 数据库
-
-<a name="db-mongodb"></a>
 
 - Mongodb
 
@@ -647,19 +602,11 @@ router.GET("/mongo", func(context *gin.Context){
     fmt.Println("Phone:", result.Phone)
 })
 ```
-<a name="db-mysql"></a>
-
 - Mysql
-
-<a name="ORM"></a>
 
 - ORM
 
-<a name="extensions"></a>
-
 ### 扩展包
-
-<a name="functions"></a>
 
 ### 常用方法
 
