@@ -20,7 +20,7 @@ MindMap：[不断更迭的知识图谱](https://mubu.com/doc/k-oy3p-8g0)
   - 示例：[基于 Koa+Vue 的 Wiki 系统（Developing）](https://github.com/EsunR/RWiki)
 
 - [GoLang 教程(studying... ...)](./GoLang)
-  - 示例：[基于 BeeGo 的 RESTful API 应用示例](https://github.com/EsunR/RWiki-GoServe)
+- [BeeGo 快速入门 & 搭建一个 RESTful API 项目](https://github.com/EsunR/RWiki-GoServe)
 - [GoWeb 编程](./GoWeb)
 - [Flask 快速使用](./Flask)
 
