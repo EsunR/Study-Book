@@ -21,11 +21,12 @@ func sayhelloName(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("val:", strings.Join(v, ""))
 	}
 	_, _ = fmt.Fprintf(w, "Hello astaxie!") // 这个写入到 w 的是输出到客户端的
+    _, _ = w.Write([]byte("I can write too!"))
 }
 
 func main() {
 	http.HandleFunc("/", sayhelloName)       // 设置访问的路由
-	err := http.ListenAndServe(":9090", nil) // 设置监听的端口
+    err := http.ListenAndServe(":9090", nil) // 设置监听的端口【注意带冒号】
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}

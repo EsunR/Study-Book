@@ -1,3 +1,74 @@
+# 1. 并发编程
+
+## 1.1 goroutine
+
+示例：
+
+```go
+func main() {
+	for i := 0; i < 10; i++ {
+		go func(i int) {
+            // 开启的这个多任务可以一直输出打印
+			for {
+				fmt.Printf("hello from goroutine %d \n", i)
+			}
+		}(i)
+	}
+    // 让 mian 函数延迟结束，否则创建的多任务还没有来得及输出 mian 函数就结束运行了
+	time.Sleep(time.Millisecond)
+}
+```
+
+输出：
+
+```sh
+hello from goroutine 2 
+hello from goroutine 2 
+hello from goroutine 6 
+hello from goroutine 6 
+... ...
+hello from goroutine 7 
+hello from goroutine 7 
+```
+
+## 1.2 goroutine 的本质 —— 协程 Coroutine
+
+如果我们将上面的示例改为循环1000次，程序仍能够运行，但是熟悉操作系统的同学可能知道，开启1000个线程是根本不现实的，所以 go 语言的并发操作开启的并非是多个线程，而是多个协程，其有如下几个优点：
+
+- 协程是一个轻量级的线程
+- 非抢占式的多任务处理，由协程主动交出控制权（系统可以主动切出线程）
+- 编译器/解释器/虚拟机层面的多任务（线程是由操作系统层面的多任务）
+
+- 多个协程可以在一个或多个线程上运行
+
+>  子程序是携程中的一个特例。
+
+普通函数：在一个线程中，main 函数掌握控制权执行代码语句，当遇到 doWork 函数，将执行权传递给 doWork 函数，然后等待 doWork 的执行结果返回给 main 函数
+
+协程：mian 和 doWork 的数据可以双向流通，控制权也可以双向流通，相当于并发执行的两个线程
+
+![image.png](https://i.loli.net/2019/09/17/CdDqvfiZwnxFsaG.png)
+
+Go语言由调度器来决定每个协程存放的位置：
+
+![image.png](https://i.loli.net/2019/09/17/NKOZdDmY54t8Ukz.png)
+
+由此可以得出 goroutine 的定义：
+
+- 任何函数只要加上 go 关键字，就能送给调度器运行
+- 不需要在定义时区分是否是异步函数（即在任意的一个函数前加上 `go` 就可以将其作为一个协程）
+- 调度器在合适的点进行切换
+- 使用 -racce 来检测数据访问冲突
+
+goroutine 可能的切换点：
+
+- I/O, select
+- channel
+- 等待锁
+- 函数调用（有时）
+- runtime.Gosched()
+- 上述只是参考，不能保证切换、不能保证在其他点不会切换
+
 # 1. channel
 
 > goroutine 之间通信的通道就叫做 channel

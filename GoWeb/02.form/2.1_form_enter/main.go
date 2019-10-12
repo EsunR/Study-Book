@@ -20,7 +20,7 @@ func SayHelloName(w http.ResponseWriter, r *http.Request) {
 func Login(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("method:", r.Method) // 获取请求的方法
 	if r.Method == "GET" {
-		t, _ := template.ParseFiles("./02.form/2.1_form_enter/login.gtpl")
+		t, _ := template.ParseFiles("./template/login.html")
 		_ = t.Execute(w, nil)
 	} else {
 		err := r.ParseForm() // 解析 url 传递的参数，对于 POST 则解析响应包的主体（request body）

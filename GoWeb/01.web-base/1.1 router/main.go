@@ -18,10 +18,10 @@ func (p *MyMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func sayhelloName(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello myroute!")
+	_, _ = fmt.Fprintf(w, "Hello myroute!")
 }
 
 func main() {
 	mux := &MyMux{}
-	http.ListenAndServe(":9091", mux)
+	_ = http.ListenAndServe(":9090", mux)
 }
