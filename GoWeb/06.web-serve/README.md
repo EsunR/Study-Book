@@ -243,5 +243,206 @@ func handleClientLong(conn net.Conn) {
 }
 ```
 
-# 3. UDP Socket
+# 2. UDP Socket
+
+Go 语言包中处理 UDP Socket 和 TCP Socket 不同的地方就是在服务器端处理多个客户端请求数据包的方式不同，UDP 缺少了对客户端连接请求的 Accept 函数。其他基本几乎一模一样，只有 TCP 换成了 UDP 而已。UDP 的几个主要函数如下所示：
+
+```go
+func ResolveUDPAddr(net, addr string) (*UDPAddr, os.Error)
+func DialUDP(net string, laddr, raddr *UDPAddr) (c *UDPConn, err os.Error)
+func ListenUDP(net string, laddr *UDPAddr) (c *UDPConn, err os.Error)
+func (c *UDPConn) ReadFromUDP(b []byte) (n int, addr *UDPAddr, err os.Error)
+func (c *UDPConn) WriteToUDP(b []byte, addr *UDPAddr) (n int, err os.Error)
+```
+
+一个 UDP 的客户端代码如下所示，我们可以看到不同的就是 TCP 换成了 UDP 而已：
+
+```go
+package main
+
+import (
+    "fmt"
+    "net"
+    "os"
+)
+
+func main() {
+    if len(os.Args) != 2 {
+        fmt.Fprintf(os.Stderr, "Usage: %s host:port", os.Args[0])
+        os.Exit(1)
+    }
+    service := os.Args[1]
+    udpAddr, err := net.ResolveUDPAddr("udp4", service)
+    checkError(err)
+    conn, err := net.DialUDP("udp", nil, udpAddr)
+    checkError(err)
+    _, err = conn.Write([]byte("anything"))
+    checkError(err)
+    var buf [512]byte
+    n, err := conn.Read(buf[0:])
+    checkError(err)
+    fmt.Println(string(buf[0:n]))
+    os.Exit(0)
+}
+func checkError(err error) {
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Fatal error ", err.Error())
+        os.Exit(1)
+    }
+}
+```
+
+我们来看一下 UDP 服务器端如何来处理：
+
+```go
+package main
+
+import (
+    "fmt"
+    "net"
+    "os"
+    "time"
+)
+
+func main() {
+    service := ":1200"
+    udpAddr, err := net.ResolveUDPAddr("udp4", service)
+    checkError(err)
+    conn, err := net.ListenUDP("udp", udpAddr)
+    checkError(err)
+    for {
+        handleClient(conn)
+    }
+}
+func handleClient(conn *net.UDPConn) {
+    var buf [512]byte
+    _, addr, err := conn.ReadFromUDP(buf[0:])
+    if err != nil {
+        return
+    }
+    daytime := time.Now().String()
+    conn.WriteToUDP([]byte(daytime), addr)
+}
+func checkError(err error) {
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Fatal error ", err.Error())
+        os.Exit(1)
+    }
+}
+```
+
+# 3. WebSocket
+
+WebSocket 是 HTML5 的重要特性，它实现了基于浏览器的远程 socket，它使浏览器和服务器可以进行全双工通信，许多浏览器（Firefox、Google Chrom e 和 Safari）都已对此做了支持。
+
+## 3.1 WebSocket Client
+
+客户端跟服务端都可以双向发送消息与接受消息，我们先来演示如何利用 js 在客户端发送 webSocket 消息。
+
+1. 首先要创建一个 Socket 对象：
+
+   ```js
+   var wsuri = "ws://127.0.0.1:9090"
+   var sock = new WebSocket(wsuri)
+   ```
+
+2. 可以使用 `send()` 在客户端主动发送消息：
+
+   ```js
+   var msg = "client msg"
+   sock.send(msg)
+   ```
+
+3. 同时还可以设置几个钩子函数，用于处理不同的情况：
+
+   当建立连接时：
+
+   ```js
+   sock.onopen = function() {
+       console.log("connected to " + wsuri);
+   }
+   ```
+
+   当连接关闭时：
+
+   ```js
+   sock.onclose = function(e) {
+       console.log("connection closed (" + e.code + ")");
+   }
+   ```
+
+   当客户端收到消息时：
+
+   ```js
+   sock.onmessage = function(e) {
+       console.log("message received: " + e.data);
+   }
+   ```
+
+## 3.2 WebSocket Serve
+
+服务端要接受客户端的消息首先要设置 webSocket 信息接收的路由，仍可以使用 `http.Handle()` 来处理路由连接对应的 Handle 函数，但是 Handle 函数必须由 `websocket.Handler()` 方法来转换，整体的流程如下：
+
+```go
+func main() {
+    http.Handle("/", websocket.Handler(Echo))
+
+    if err := http.ListenAndServe(":1234", nil); err != nil {
+        log.Fatal("ListenAndServe:", err)
+    }
+}
+```
+
+在 Handle 函数中接收一个 `*websocket.Conn` 连接对象，利用这个连接对象可以信息：
+
+```go
+var reply string
+if err = websocket.Message.Receive(ws, &reply); err != nil {
+    fmt.Println("Can't receive")
+    break
+}
+fmt.Println("Received back from client: " + reply)
+```
+
+也可以主动发送信息：
+
+```go
+msg := "send message from serve"
+
+if err = websocket.Message.Send(ws, msg); err != nil {
+    fmt.Println("Can't send")
+    break
+}
+```
+
+同时在函数中开启一个 for 循环用于不断接受信息，所以整理的流程如下：
+
+```go
+func Echo(ws *websocket.Conn) {
+    var err error
+
+    for {
+        var reply string
+
+        if err = websocket.Message.Receive(ws, &reply); err != nil {
+            fmt.Println("Can't receive")
+            break
+        }
+
+        fmt.Println("Received back from client: " + reply)
+
+        msg := "Received:  " + reply
+        fmt.Println("Sending to client: " + msg)
+
+        if err = websocket.Message.Send(ws, msg); err != nil {
+            fmt.Println("Can't send")
+            break
+        }
+    }
+}
+```
+
+
+
+
 

@@ -103,6 +103,17 @@ type Handler interface {
 }
 ```
 
+Handler 是一个接口，但是前一小节中的 `sayhelloName` 函数并没有实现 ServeHTTP 这个接口，为什么能添加呢？原来在 http 包里面还定义了一个类型 `HandlerFunc`, 我们定义的函数 `sayhelloName` 就是这个 **HandlerFunc 调用之后的结果**，这个类型默认就实现了 ServeHTTP 这个接口，**即我们调用了 HandlerFunc (f), 强制类型转换 f 成为 HandlerFunc 类型（内部调用方式为`HadnlerFunc(sayhelloName).ServeHTTP`）**，这样 f 就拥有了 ServeHTTP 方法。
+
+```go
+type HandlerFunc func(ResponseWriter, *Request)
+
+// ServeHTTP calls f(w, r)
+func (f HandlerFunc) ServeHTTP(w ResponseWriter, r *Request) {
+    f(w, r)
+}
+```
+
 即外部路由器只要实现了 Handler 接口就可以，我们可以在自己实现的路由器的 ServeHTTP 里面实现自定义路由功能。如下代码所示，我们自己实现了一个简易的路由器：
 
 ```go
@@ -113,8 +124,7 @@ import (
     "net/http"
 )
 
-type MyMux struct {
-}
+type MyMux struct {}
 
 func (p *MyMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
     if r.URL.Path == "/" {
