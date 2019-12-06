@@ -409,8 +409,8 @@ str := "yo~我爱你"
 bytes := []byte(str)
 for len(bytes) > 0 {
     ch, size := utf8.DecodeRune(bytes) // ch为字符的unicode code point，size为字符的字节数
-    bytes = bytes[size:]
-    fmt.Printf("%c ", ch) // 修剪byte
+    bytes = bytes[size:] // 修剪byte
+    fmt.Printf("%c ", ch) 
 }
 // 输出：y o ~ 我 爱 你 
 ```
