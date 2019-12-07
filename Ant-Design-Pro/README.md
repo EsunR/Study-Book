@@ -1,5 +1,7 @@
 # 1. UMI
 
+> umi 可以简单地理解为 roadhog + 路由，思路类似 next.js/nuxt.js，辅以一套插件机制，目的是通过框架的方式简化 React 开发
+
 ## 1.1 快速使用
 
 安装 umi：
@@ -118,9 +120,11 @@ export default function() {
 
 # 2. DVA
 
-## 2.1 开启 DVA
+> dva 目前是纯粹的数据流，和 umi 以及 roadhog 之间并没有相互的依赖关系，可以分开使用也可以一起使用
 
-![数据分层的概念](http://img.cdn.esunr.xyz/markdown/20191206184557.png)
+![Dva 中的数据流](http://img.cdn.esunr.xyz/markdown/20191207152816.png)
+
+## 2.1 开启 DVA
 
 dva 是基于 redux redux-saga 和 react-router 的轻量级前端框架。
 
@@ -136,9 +140,13 @@ export default {
 }
 ```
 
-## 2.2 创建 Model
+## 2.2 创建 Model 层 （State）
 
-按照规范，我们应该在 `/src/models` 下创建 Model 层的数据，每个数据层单独存放在一个 `.js` 文件下，并拥有一个独立的 namespace 进行区分，如：
+> dva 通过 model 的概念把一个领域的模型管理起来，包含同步更新 state 的 reducers，处理异步逻辑的 effects，订阅数据源的 subscriptions 。
+
+![数据分层的概念](http://img.cdn.esunr.xyz/markdown/20191206184557.png)
+
+按照 UMI 规范，我们应该在 `/src/models` 下创建 Model 层的数据，每个数据层单独存放在一个 `.js` 文件下，并拥有一个独立的 namespace 进行区分，如：
 
 ```js
 export default {
@@ -150,7 +158,9 @@ export default {
 };
 ```
 
-## 2.3 连接 Model 到组件中
+## 2.3 连接 Model 到组件中 （connect）
+
+> `connect` 方法继承与 React-Redux
 
 有了 Model 层的数据之后，我们就不需要在组件内使用 state 来存放数据。调用 Model 层的数据首先需要从 `dva` 引入 `content` 装饰器：
 
@@ -176,5 +186,199 @@ class List extends React.Component {
 
 ```js
 console.log(this.props.data);
+```
+
+除此之外可以按照传统的用法而不使用装饰器用法，使用 `connect` 方法将组件与 state 数据关联，注意这样做的话，当前返回的不是组件，而是 `connect` 方法的返回值
+
+```js
+export default connect((state)=>{
+  return { /* ... ... */ }
+})(List)
+```
+
+## 2.4 修改 Model 层的数据 （Reducer）
+
+![同步数据的数据流图](http://img.cdn.esunr.xyz/markdown/20191207164324.png)
+
+首先要在 Model 层设置一个 Reducer 函数，一个 Reducer 函数接收两个参数，分别为 state 和 action。可以用来直接修改 state 中的数据。
+
+> Reducer 函数返回一个新的 state 来与原来的 state 进行 **覆盖操作**，也就是说如果返回的 state 如果缺少某一项，会导致数据丢失。
+
+```js
+// listData.js
+export default {
+  namespace: 'list',
+  state: {
+    // ... ...
+  },
+  reducers: {
+    addNewData: function(state, action) {
+      let maxNum = state.maxNum + 1;
+      let newArr = [...state.data, maxNum];
+      return {
+        data: newArr,
+        maxNum,
+      };
+    },
+  },
+};
+```
+
+之后在组件中，使用 dva 提供的 `connect` 装饰器的第二个参数掺入的函数，可以拿到 `dispatch` 方法，调用 `dispatch` 方法可以派发一个 **Action** 从而调用一个 **Reducer 函数**，同时要注意结合 namespace 命名空间调用：
+
+```js
+// list.jsx
+@connect(
+  state => {
+    return {
+      // ... ...
+    };
+  },
+  dispatch => {
+    return {
+      add() {
+        const action = { 
+          type: `${namespace}/addNewData` 
+        }
+        dispatch(action); 
+      },
+    };
+  },
+)
+class List extends React.Component {
+  // ... ...
+}
+```
+
+设置好派发 `dispatch` 的方法后，方法就被挂载到组件的 `props` 中了，在组件中调用就可以使用：
+
+```js
+this.props.add()
+```
+
+## 2.5 使用 mapStateToProps 与 mapDispatchToProps
+
+两个方法我们可以在外部定义，然后再传入到装饰器内，这样就能更清晰的显示代码调理：
+
+```js
+// list.jsx
+
+const mapStateToProps = (state) => {
+  return {
+    data: state[namespace].data,
+    maxNum: state[namespace].maxNum,
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    add() {
+      // 派发一个 listData 中的 addNewData 方法
+      dispatch({ type: `${namespace}/addNewData` }); 
+    },
+  };
+}
+
+@connect( mapStateToProps, mapDispatchToProps )
+class List extends React.Component {
+  // ... ...
+}
+```
+
+## 2.6 异步数据的处理
+
+> Dva 的异步能力继承与 Redux-Saga
+
+![异步数据的数据流图](http://img.cdn.esunr.xyz/markdown/20191207164413.png)
+
+Model 对象上的 effect 属性里可以写入 Generator 函数来进行异步数据的获取。创建的 Generator 函数内可以获取到两个参数，分别为 `action` 和 `sagaEffects` 对象。
+
+其中 `sagaEffects` 对象下存在两个方法，`call()` 方法用于执行异步数据的获取，`put()` 方法用于派发一个 Action 来更新 state 中的数据。
+
+关于 `call()` 方法，我们可以不使用 `call()` 方法而直接去 `yield` 获取一个异步方法得到的数据，但是按照规范我们必须使用 `call()` 来包裹一个异步方法，其官方解释如下：
+
+> call 创建了一条描述结果的信息，就像在 Redux 里你使用 action 创建器，创建一个将被 Store 执行的、描述 action 的纯文本对象，call 创建一个纯文本对象描述函数调用。redux-saga middleware 确保执行函数调用并在响应被 resolve 时恢复 generator。这让你能容易地测试 Generator，就算它在 Redux 环境之外。因为 call 只是一个返回纯文本对象的函数而已。
+
+UMI 为开发者很好的提供了一个 mock 环境，可以直接在项目的 `/mock/` 路径下创建 js 文件写入 mock 数据，如：
+
+```js
+// mockListData.js
+export default {
+  'get /api/list': function(req, res) {
+    res.json({
+      listData: [1, 2, 3, 4],
+      maxNum: 4,
+    });
+  },
+};
+```
+
+有了数据流之后，就可以使用 AJAX 来获取数据。在 `effects` 中我们来编写一个 Generator 函数：
+
+```js
+import request from '../utils/request';
+
+export default {
+  namespace: 'list',
+  state: {
+    // ... ...
+  },
+  reducers: {
+    // ... ...
+    addNewData(state, action) {
+      if (action.payload) {
+        const newState = JSON.parse(JSON.stringify(state));
+        return Object.assign(newState, action.payload);
+      }
+      // ... ...
+    },
+  },
+  effects: {
+    *fetchData(action, { call, put }) {
+      // request 是从外部引入的 XHR 封装的方法
+      const data = yield call(request, '/api/list', { method: 'GET' });
+      // 使用 put() 方法来派发一个 action
+      yield put({
+        type: 'addNewData',
+        payload: data,
+      });
+    },
+  },
+};
+```
+
+与 Reducer 函数一样，Effect 函数也可以通过派发一个 Action 来调用，但 Effect 函数不会主动修改 State 中的数据，而是在获取了数据之后另外生成一个 Action 来调用直接修改数据的 Reducer 函数。
+
+> Effect 函数只是拦截了 Action 然后进行了数据的转发
+
+在调用时，我们也需要利用 `connect` 来获取 `dispatch` 方法来调用一个 Effect 函数：
+
+```js
+@connect(
+  state => {
+    return {
+      // ... ...
+    };
+  },
+  dispatch => {
+    return {
+      // ... ...
+      fetchData() {
+        dispatch({
+          type: `${namespace}/fetchData`,
+        });
+      },
+    };
+  },
+)
+class List extends React.Component {
+  // ... ...
+}
+```
+
+方法调用：
+
+```js
+this.props.fetchData()
 ```
 
