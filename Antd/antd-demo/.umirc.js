@@ -5,9 +5,9 @@ export default {
   routes: [
     {
       path: '/',
-      component: '../layouts/index',
+      component: '../layouts/index.jsx',
       routes: [
-        { path: '/', component: '../pages/index' }
+        { path: '/', component: '../pages/index.jsx' }
       ]
     }
   ],
