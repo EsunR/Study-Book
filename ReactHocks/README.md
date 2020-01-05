@@ -183,3 +183,55 @@ function Example() {
 
 export default Example;
 ```
+
+# 5. useReducer
+
+## 5.1 useReducer 简单实现
+
+首先回顾一下 Redux 中 Reducer 的写法：
+
+```js
+// ./store/reducer.js
+
+export default (state = defaultState, action) => {
+  if (action.type === 'change_input_value') {
+    const newState = JSON.parse(JSON.stringify(state));
+    newState.inputValue = action.value;
+    return newState;
+  }
+  return state;
+}
+```
+
+再 ReactHocks 中，useReducer 的概念与写法与 Redux 的一致，我们可以使用 reducer 将组件 state 的数据抽离出去：
+
+```jsx
+import React, { useReducer } from 'react';
+
+function ReducerDemo(){
+    const [ count , dispatch ] =useReducer((state,action)=>{
+        switch(action){
+            case 'add':
+                return state+1
+            case 'sub':
+                return state-1
+            default:
+                return state
+        }
+    },0)
+    return (
+       <div>
+           <h2>现在的分数是{count}</h2>
+           <button onClick={()=>dispatch('add')}>Increment</button>
+           <button onClick={()=>dispatch('sub')}>Decrement</button>
+       </div>
+    )
+
+}
+
+export default ReducerDemo
+```
+
+![实现效果](http://study.esunr.xyz/1578222613439.png)
+
+

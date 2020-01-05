@@ -4,6 +4,7 @@ import Example from "./components/Example";
 import UseState from "./components/UseState";
 import LifeCycle from "./components/LifeCycle";
 import UseContent from "./components/UseContent";
+import UseReducer from "./components/UseReducer"
 
 class App extends React.Component {
   constructor(props) {
@@ -29,12 +30,16 @@ class App extends React.Component {
             <li>
               <Link to="/UseContent">UseContent</Link>
             </li>
+            <li>
+              <Link to="/UseReducer">UseReducer</Link>
+            </li>
           </ul>
           <div className="wrapper">
             <Route path="/Example" component={Example}></Route>
             <Route path="/LifeCycle" component={LifeCycle}></Route>
             <Route path="/UseState" component={UseState}></Route>
             <Route path="/UseContent" component={UseContent}></Route>
+            <Route path="/UseReducer" component={UseReducer}></Route>
           </div>
         </Router>
       </div>
