@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .wrapper {
+      width: 300px;
+      height: 200px;
+      border: 1px solid #000000;
+      display: grid;
+      grid-template-rows: repeat(2, minmax(50px, 100px));
+      grid-template-columns: repeat(auto-fill, 100px);
+    }
+
+    .wrapper>div {
+      background-color: pink;
+      padding: 10px;
+      background-clip: content-box;
+      border: 5px solid pink;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <div>1</div>
+    <div>2</div>
+    <div>3</div>
+    <div>4</div>
+    <div>5</div>
+    <div>6</div>
+  </div>
+</body>
+
+</html>
