@@ -363,3 +363,400 @@ Grid 中引入了自动填充的特性，在设置容器的行高与列宽时，
 ```
 
 ![](http://img.cdn.esunr.xyz/markdown/20200227191817.png)
+
+# 8. 区域定位 grid-area
+
+除了使用 `grid-row`、`grid-column` 的定位方式之外，还可以使用 `grid-area` 区域定位的方式。区域定位分别代表上起始边、左起始边、下终边、右终边，其之间分别用 `/` 相间隔。
+
+示例 1：
+
+```css
+.wrapper {
+  width: 300px;
+  height: 300px;
+  border: 1px solid #000000;
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.wrapper>div {
+  background-color: pink;
+  grid-area: 1/1/2/4;
+}
+```
+
+![](http://img.cdn.esunr.xyz/markdown/20200228165058.png)
+
+示例 2：
+
+```css
+.wrapper {
+  width: 300px;
+  height: 300px;
+  border: 1px solid #000000;
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.wrapper>div {
+  background-color: pink;
+  grid-area: 1/2/3/4;
+}
+```
+
+![](http://img.cdn.esunr.xyz/markdown/20200228165341.png)
+
+# 9. 区域命名 
+
+可以使用 `grid-template-areas` 为区域进行命名，每行之间用不同的字符串相间隔，每列之间用空格相隔。
+
+例：
+
+```html
+<div class="container">
+  <header>Header</header>
+  <nav>Nav</nav>
+  <main>Main</main>
+  <footer>Footer</footer>
+</div>
+```
+
+```css
+* {
+  padding: 0;
+  margin: 0em;
+}
+
+.container {
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  grid-template-rows: 60px 1fr 60px;
+  grid-template-columns: 100px 1fr;
+  grid-template-areas:
+    "header header"
+    "nav main"
+    "footer footer";
+}
+
+header,
+nav,
+main,
+footer {
+  background-color: blueviolet;
+  background-clip: content-box;
+  padding: 10px;
+  color: #ffffff;
+}
+
+header {
+  grid-area: header;
+}
+
+nav {
+  grid-area: nav;
+}
+
+main{
+  grid-area: main;
+}
+
+footer{
+  grid-area: footer;
+}
+```
+
+效果：
+
+![](http://img.cdn.esunr.xyz/markdown/20200228174629.png)
+
+同时，使用 `grid-template-areas` 对栅格区域进行命名时，每条边也会自动被添加命名，以我们命名的 header 区域来说，其边的自动命名规则如下：
+
+![](http://img.cdn.esunr.xyz/markdown/20200228180003.png)
+
+如果存在不想命名的区域，如上述示例中，我们只想命名最下区域的 footer 部分，可以使用占位符 `.` 来省略掉一个区域的命名，如：
+
+```css
+.container {
+  /* ... ... */
+  grid-template-areas:
+    ". ."
+    ". ."
+    "footer footer";
+}
+```
+
+# 10. 栅格的流动
+
+栅格的默认流动方式为从左到右从上到下，如：
+
+```css
+.container {
+  width: 300px;
+  height: 300px;
+  border: 1px solid #000000;
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr);
+}
+```
+
+![](http://img.cdn.esunr.xyz/markdown/20200228182206.png)
+
+`grid-auto-flow` 可以改变栅格的浮动方向，默认值为 `row` 改为 `column` 之后可以沿着列的方向浮动：
+
+
+```css
+.container {
+  grid-auto-flow: column
+}
+```
+
+![](http://img.cdn.esunr.xyz/markdown/20200228182414.png)
+
+此外，`grid-auto-flow` 属性值的第二个值可以填写 `dense` 指定填充的位置修改为如果最后一个定位元素前还有空位，那就填充到其前方。
+
+如下是不加 `dense` 的情况:
+
+```css
+.container {
+  width: 300px;
+  height: 300px;
+  border: 1px solid #000000;
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.container>div {
+  background-color: skyblue;
+  border: 5px solid pink;
+}
+
+.container :nth-child(1) {
+  grid-column: 1/span 2;
+}
+
+.container :nth-child(2) {
+  grid-column: 2/span 2;
+}
+```
+
+![](http://img.cdn.esunr.xyz/markdown/20200228183408.png)
+
+添加 `dense` 后：
+
+```css
+.container {
+  width: 300px;
+  height: 300px;
+  border: 1px solid #000000;
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-flow: row dense;
+}
+
+.container>div {
+  background-color: skyblue;
+  border: 5px solid pink;
+}
+
+.container :nth-child(1) {
+  grid-column: 1/span 2;
+}
+
+.container :nth-child(2) {
+  grid-column: 2/span 2;
+}
+```
+
+![](http://img.cdn.esunr.xyz/markdown/20200228183455.png)
+
+> 如果是使用区域定位，那么区域定位元素前如果有空位，后面的元素会默认填充在前面的空位上。
+
+# 11. 栅格的整体对其方式的处理
+
+与 Flex 布局一样的是，Grid 布局也同样可以是用 `justify-content` 进行整体栅格的对其。
+
+示例 1：
+
+```css
+.container {
+  width: 300px;
+  height: 50px;
+  border: 1px solid #000000;
+  display: grid;
+  grid-template-rows: repeat(1, 50px);
+  grid-template-columns: repeat(3, 50px);
+  justify-content: center;
+}
+```
+
+![](http://img.cdn.esunr.xyz/markdown/20200228184442.png)
+
+示例 2：
+
+```css
+.container {
+  width: 300px;
+  height: 50px;
+  border: 1px solid #000000;
+  display: grid;
+  grid-template-rows: repeat(1, 50px);
+  grid-template-columns: repeat(3, 50px);
+  grid-auto-flow: row dense;
+  justify-content: space-evenly;
+}
+```
+
+![](http://img.cdn.esunr.xyz/markdown/20200228184617.png)
+
+此外，由于 Grid 布局是二维布局，还可以使用 `align-content` 来进行垂直方向上的居中对其（针对于 Flex 这种一维布局时没有垂直方向的，所以该属性在 Flex 布局中无效）。
+
+# 12. 栅格内元素的整体控制
+
+`justify-items` 与 `align-items` 在 Grid 布局中同样生效。
+
+
+> 关于 `justify-items` 的效果说明：
+> *   在块级布局中，会将其包含的项目在其行内轴上对齐；
+> *   绝对定位的元素中，会将其包含的项目在其行内轴上对齐，同时考虑 top、left、bottom、right 的值；
+> *   表格单元中，该属性被忽略（块级元素、绝对定位元素和表格布局中对齐的[更多信息](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Box_Alignment/Box_Alignment_In_Block_Abspos_Tables)）；
+> *   弹性盒子布局中，该属性被忽略（弹性盒子中对齐的[更多信息](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Box_Alignment/Box_Alignment_in_Flexbox)）；
+> *   栅格布局中，会将其栅格区域内的项目在其行内轴上对齐（栅格布局中对齐的[更多信息](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Box_Alignment/Box_Alignment_In_Grid_Layout)）；
+
+在默认情况下，`justify-items` 与 `align-items` 的默认值都是 `stretch`，布局内元素如果没有设置宽高将会被自动拉伸，填充至每个栅格：
+
+```css
+.container {
+  width: 400px;
+  height: 100px;
+  border: 1px solid #000000;
+  display: grid;
+  grid-template-rows: repeat(1, 100px);
+  grid-template-columns: repeat(4, 1fr);
+  align-items: stretch;
+}
+
+.container>div {
+  background-color: skyblue;
+  border: 5px solid pink;
+}
+```
+
+![](http://img.cdn.esunr.xyz/markdown/20200228185452.png)
+
+示例 1：改变 `justify-items` 属性
+
+```css
+.container {
+  justify-items: left;
+}
+```
+
+![](http://img.cdn.esunr.xyz/markdown/20200228185543.png)
+
+示例 2：改变 `align-items` 属性
+
+```css
+.container{
+  align-items: center;
+}
+```
+
+![](http://img.cdn.esunr.xyz/markdown/20200228185731.png)
+
+# 12. 栅格内单一元素对其方式的处理
+
+除了上述对栅格内所有元素进进行统一的对其方式处理外，还可以利用 `justify-self` 与 `align-self` 进行对栅格内单一元素的对其方式的处理。如我们想要单独将第一个元素进行上下左右居中，就可以写为：
+
+```css
+.container {
+  width: 400px;
+  height: 100px;
+  border: 1px solid #000000;
+  display: grid;
+  grid-template-rows: repeat(1, 100px);
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.container>div {
+  background-color: skyblue;
+  border: 5px solid pink;
+}
+
+.container :first-child {
+  align-self: center;
+  justify-self: center;
+}
+```
+
+![](http://img.cdn.esunr.xyz/markdown/20200228190707.png)
+
+# 14. 组合简写栅格的对其方式
+
+我们简单整理一下上面三节的整体内容：
+
+- 对于栅格整体的对其方式，我们使用了 `justify-content` 与 `align-content`；
+- 对于栅格内元素的对其方式，我们使用了 `justify-items` 与 `align-items`；
+- 对于栅格内单一元素的对其方式，我们使用了 `justify-self` 与 `align-self`。
+
+那么对于 `justify-content` 与 `align-content` 其为一组，我们可以使用 `place-content` 来对其进行简写，如：
+
+```css
+.container{
+  align-content: center;
+  justify-content: left;
+}
+```
+
+相当于：
+
+```css
+.container{
+  place-content: center left;
+}
+```
+
+![](http://img.cdn.esunr.xyz/markdown/20200228192304.png)
+
+对于 `justify-items` 与 `align-items` 其为一组，我们可以使用 `place-items` 来对其进行简写，如：
+
+```css
+.container{
+  align-items: center;
+  justify-items: left;
+}
+```
+
+相当于：
+
+```css
+.container{
+  place-items: center left;
+}
+```
+
+![](http://img.cdn.esunr.xyz/markdown/20200228192517.png)
+
+对于 `justify-self` 与 `align-self` 其为一组，我们可以使用 `place-self` 来对其进行简写，如：
+
+```css
+.container :first-child {
+  align-self: center;
+  justify-self: left;
+}
+```
+
+相当于：
+
+```css
+.container :first-child {
+  place-self: center left;
+}
+```
+
+![](http://img.cdn.esunr.xyz/markdown/20200228192838.png)
