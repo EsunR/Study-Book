@@ -32,7 +32,7 @@ router.get('/', async (ctx, next) => {
 // 启动路由
 app
   .use(router.routes())
-  .use(router.allowedMethods());  
+  .use(router.allowedMethods());  // router.allowedMethods() 是为了优化状态码，否则只会返回404
 
 app.listen(3000);
 ```
