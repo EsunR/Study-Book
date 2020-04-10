@@ -1,11 +1,12 @@
 import React from "react";
+// import { Router, Route } from "react-router";
+// import Home from "@/pages/Home";
 
 class Layout extends React.Component {
   render() {
     return (
       <div id="layout">
         <header>头部</header>
-        <section>主要部分</section>
         <footer>足部</footer>
       </div>
     );
