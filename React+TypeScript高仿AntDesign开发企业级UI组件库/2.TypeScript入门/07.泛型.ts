@@ -33,3 +33,29 @@ class Queue<T> {
     this.data.pop();
   }
 }
+
+// interface 使用泛型
+interface KeyPair<T, U> {
+  key: T;
+  value: U;
+}
+
+let kp1: KeyPair<number, string> = {
+  key: 1,
+  value: "123",
+};
+
+// 使用泛型的方式定义数组
+
+let arr1: number[] = [1, 2, 3];
+let arr2: Array<number | string> = [1, 2, 3, "2"];
+
+interface IAdd<T> {
+  (a: T, b: T): T;
+}
+
+function add(a: number, b: number): number {
+  return a + b;
+}
+
+const a: IAdd<number> = add;
