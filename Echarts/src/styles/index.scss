@@ -1,0 +1,24 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+#demo-list {
+  display: flex;
+  flex-wrap: wrap;
+  width: 1040px;
+  margin: 0 auto;
+  .demo {
+    margin: 0px 10px;
+    h1 {
+      text-align: center;
+      margin: 10px 0;
+    }
+    .chart-wrapper {
+      width: 500px;
+      height: 500px;
+      box-sizing: border-box;
+      border: 1px solid rgba($color: #000000, $alpha: 0.6);
+    }
+  }
+}
