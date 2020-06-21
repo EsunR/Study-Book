@@ -1,26 +1,27 @@
 import React from "react";
-import logo from "./logo.svg";
-import "./App.css";
-import HelloWord from "./components/HelloWorld";
+// import HelloWord from "./components/HelloWorld";
+
+import Button, { ButtonType, ButtonSize } from "./components/Button/button";
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <HelloWord />
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Button buttonType={ButtonType.Defalut} autoFocus={true}>
+        Hello
+      </Button>
+      <Button buttonType={ButtonType.Primary}>Hello</Button>
+      <Button buttonType={ButtonType.Danger}>Hello</Button>
+      <Button buttonType={ButtonType.Danger} disabled={true}>
+        Hello
+      </Button>
+      <Button buttonType={ButtonType.Link}>Hello</Button>
+
+      <Button buttonType={ButtonType.Primary} size={ButtonSize.Small}>
+        Hello
+      </Button>
+      <Button buttonType={ButtonType.Primary} size={ButtonSize.Large}>
+        Hello
+      </Button>
     </div>
   );
 }
