@@ -8,7 +8,7 @@ export enum ButtonSize {
 
 export enum ButtonType {
   Primary = "primary",
-  Defalut = "default",
+  Default = "default",
   Danger = "danger",
   Link = "link",
 }
@@ -18,15 +18,15 @@ interface IBaseButtonProps {
   disabled?: boolean;
   size?: ButtonSize;
   buttonType?: ButtonType;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   href?: string;
 }
 
-type NativeButonProps = React.ButtonHTMLAttributes<HTMLElement>;
+type NativeButtonProps = React.ButtonHTMLAttributes<HTMLElement>;
 
-type NativeAchorProps = React.AnchorHTMLAttributes<HTMLElement>;
+type NativeAnchorProps = React.AnchorHTMLAttributes<HTMLElement>;
 
-export type ButtonProps = Partial<NativeAchorProps & NativeButonProps> &
+export type ButtonProps = Partial<NativeAnchorProps & NativeButtonProps> &
   IBaseButtonProps;
 
 const Button: React.FC<ButtonProps> = (props) => {
@@ -54,7 +54,7 @@ const Button: React.FC<ButtonProps> = (props) => {
     );
   } else {
     return (
-      <button {...restProps} className={classes}>
+      <button {...restProps} className={classes} disabled={disabled}>
         {children}
       </button>
     );
@@ -63,7 +63,7 @@ const Button: React.FC<ButtonProps> = (props) => {
 
 Button.defaultProps = {
   disabled: false,
-  buttonType: ButtonType.Defalut,
+  buttonType: ButtonType.Default,
 };
 
 export default Button;

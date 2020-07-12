@@ -1,3 +1,6 @@
+// global
+@import "./global";
+
 // config
 @import "./variables";
 
@@ -7,5 +10,6 @@
 //layout
 @import "./reboot";
 
-// button
+// component
 @import "../components/Button/style";
+@import "../components/Menu/style";
