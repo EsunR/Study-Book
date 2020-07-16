@@ -11,9 +11,9 @@ const MenuDemo: React.FC<any> = () => {
           console.log(index);
         }}
       >
-        <MenuItem index="0">选项1</MenuItem>
-        <MenuItem index="1">选项2</MenuItem>
-        <MenuItem index="2">选项3</MenuItem>
+        <MenuItem>选项1</MenuItem>
+        <MenuItem>选项2</MenuItem>
+        <MenuItem>选项3</MenuItem>
       </Menu>
     </>
   );
