@@ -185,5 +185,3 @@ const movieInfo = navigation.getParam('movieInfo');
 
 > https://reactnavigation.org/docs/4.x/headers
 
-
-
