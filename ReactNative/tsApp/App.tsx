@@ -1,118 +1,111 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * Generated with the TypeScript template
- * https://github.com/react-native-community/react-native-template-typescript
- *
- * @format
- */
-
-import React from 'react';
+import React, {useState, useRef} from 'react';
 import {
-  SafeAreaView,
+  TextInput,
+  Text,
+  TouchableOpacity,
   StyleSheet,
   ScrollView,
+  Image,
+  ActivityIndicator,
   View,
-  Text,
-  StatusBar,
+  Alert,
+  Button,
+  Animated,
 } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+// declare const global: {HermesInternal: null | {}};
 
-declare const global: {HermesInternal: null | {}};
+const styles = StyleSheet.create({
+  submitButton: {
+    backgroundColor: '#7a42f4',
+    padding: 10,
+    alignItems: 'center',
+    margin: 15,
+    height: 40,
+  },
+  box: {
+    backgroundColor: 'blue',
+  },
+});
 
 const App = () => {
+  const [text, setText] = useState<any>('');
+  const animHeight = useRef(new Animated.Value(50)).current;
+  const animWidth = useRef(new Animated.Value(50)).current;
+
   return (
     <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
-            </View>
-          )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.tsx</Text> to change
-                this screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
+      <View>
+        <ActivityIndicator size="large" color="#0000ff" animating={true} />
+        <TextInput
+          style={{}}
+          underlineColorAndroid="transparent"
+          placeholder="请输入"
+          placeholderTextColor="#ccc"
+          autoCapitalize="none"
+          keyboardType="ascii-capable"
+          returnKeyType="next"
+          onChangeText={(value) => {
+            setText(value);
+          }}
+        />
+        <TouchableOpacity
+          style={styles.submitButton}
+          onPress={() => {
+            Alert.alert(
+              '这里填标题',
+              '这里填内容',
+              [{text: '按钮1', onPress: () => {}}],
+              {cancelable: false},
+            );
+          }}>
+          <Text>点击提交</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View>
+        <Button
+          title="保存数据"
+          onPress={() => {
+            AsyncStorage.setItem('text', text);
+          }}
+        />
+        <Button
+          title="读取数据"
+          onPress={async () => {
+            const savedText = await AsyncStorage.getItem('text');
+            Alert.alert(`Saved Text: ${savedText}`);
+          }}
+        />
+      </View>
+
+      <TouchableOpacity
+        onPress={() => {
+          Animated.timing(animWidth, {
+            toValue: 200,
+            duration: 1000,
+            useNativeDriver: false,
+          }).start();
+          Animated.timing(animHeight, {
+            toValue: 200,
+            duration: 1000,
+            useNativeDriver: false,
+          }).start();
+        }}>
+        <Animated.View
+          style={[styles.box, {width: animWidth, height: animHeight}]}
+        />
+      </TouchableOpacity>
+
+      <ScrollView>
+        <Image
+          style={{margin: 10, width: 200, height: 1000, resizeMode: 'stretch'}}
+          source={{uri: 'https://www.twle.cn/static/i/img1.jpg'}}
+        />
+      </ScrollView>
     </>
   );
 };
-
-const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: Colors.lighter,
-  },
-  engine: {
-    position: 'absolute',
-    right: 0,
-  },
-  body: {
-    backgroundColor: Colors.white,
-  },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
-  },
-});
 
 export default App;
