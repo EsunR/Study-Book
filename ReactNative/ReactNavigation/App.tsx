@@ -7,9 +7,10 @@ import {createDrawerNavigator} from 'react-navigation-drawer';
 import MovieHome from './src/pages/movie/home';
 import MovieList from './src/pages/movie/movie-list';
 import MovieDetail from './src/pages/movie/movie-detail';
-import ModalPage from './src/pages/modal';
 import UserHome from './src/pages/user/home';
-import Drawer from './src/pages/drawer';
+import TestHome from './src/pages/test/home';
+import SvgTest from './src/pages/test/SvgTest';
+import ChartKit from './src/pages/test/ChartKit';
 
 const MovieStack = createStackNavigator(
   {
@@ -53,40 +54,30 @@ const UserStack = createStackNavigator(
   },
 );
 
-const BottomNavigator = createBottomTabNavigator({
-  Movie: MovieStack,
-  User: UserStack,
-});
-
-const DrawerNavigator = createDrawerNavigator(
+const TestStack = createStackNavigator(
   {
-    Movie: MovieStack,
-    User: UserStack,
+    TestHome: {
+      screen: TestHome,
+    },
+    SvgTest: {
+      screen: SvgTest,
+    },
+    ChartKit: {
+      screen: ChartKit,
+    },
   },
   {
-    // drawerLockMode: 'unlocked',
+    initialRouteName: 'TestHome',
   },
 );
 
+const DrawerNavigator = createDrawerNavigator({
+  Movie: MovieStack,
+  User: UserStack,
+  Test: TestStack,
+});
+
 const AppContainer = createAppContainer(DrawerNavigator);
-
-// const RootStack = createStackNavigator(
-//   {
-//     Movie: {
-//       screen: MovieStack,
-//     },
-//     Modal: {
-//       screen: ModalPage,
-//     },
-//   },
-//   {
-//     initialRouteName: 'Movie',
-//     mode: 'modal',
-//     headerMode: 'none',
-//   },
-// );
-
-// const AppContainer = createAppContainer(RootStack);
 
 const App = () => <AppContainer />;
 
