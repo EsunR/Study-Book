@@ -13,7 +13,7 @@ export interface MenuProps {
   /**点击菜单项触发的回掉函数 */
   onSelect?: (selectedIndex: string) => void;
   /**设置子菜单的默认打开 只在纵向模式下生效 */
-  // defaultOpenSubMenus?: string[];
+  defaultOpenSubMenus?: string[];
 }
 interface IMenuContext {
   index: string;
@@ -25,7 +25,15 @@ interface IMenuContext {
 export const MenuContext = createContext<IMenuContext>({ index: "0" });
 
 export const Menu: FC<MenuProps> = (props) => {
-  const { className, mode, style, children, defaultIndex, onSelect } = props;
+  const {
+    className,
+    mode,
+    style,
+    children,
+    defaultIndex,
+    onSelect,
+    defaultOpenSubMenus,
+  } = props;
   const [currentActive, setActive] = useState(defaultIndex);
   const classes = classNames("viking-menu", className, {
     "menu-vertical": mode === "vertical",
@@ -40,6 +48,8 @@ export const Menu: FC<MenuProps> = (props) => {
   const passedContext: IMenuContext = {
     index: currentActive ? currentActive : "0",
     onSelect: handleClick,
+    mode,
+    defaultOpenSubMenus,
   };
 
   const renderChildren = () => {
@@ -48,7 +58,7 @@ export const Menu: FC<MenuProps> = (props) => {
         MenuItemProps
       >;
       const { displayName } = childElement.type;
-      if (displayName === "MenuItem") {
+      if (displayName === "MenuItem" || displayName === "SubMenu") {
         return React.cloneElement(childElement, { index: index.toString() });
       } else {
         console.error("Waring: 需要传入 MenuItem 组件");
@@ -68,6 +78,7 @@ export const Menu: FC<MenuProps> = (props) => {
 Menu.defaultProps = {
   defaultIndex: "0",
   mode: "horizontal",
+  defaultOpenSubMenus: [],
 };
 
 export default Menu;
