@@ -1,10 +1,16 @@
 import React from 'react';
-import {View, Text} from 'react-native';
+import {View, Button} from 'react-native';
+import CustomToast from './components/CustomToast';
 
 const NativeModule: React.FC<any> = () => {
   return (
     <View>
-      <Text>233</Text>
+      <Button
+        title="弹出"
+        onPress={() => {
+          CustomToast.show('测试', 1000);
+        }}
+      />
     </View>
   );
 };
