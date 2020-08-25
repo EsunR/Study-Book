@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text} from 'react-native';
+import {View} from 'react-native';
 import {Circle, Svg} from 'react-native-svg';
 import global from '../../../style/global';
 

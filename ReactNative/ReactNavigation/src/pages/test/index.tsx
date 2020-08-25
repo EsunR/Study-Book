@@ -1,6 +1,6 @@
 import React from 'react';
 import {View, Button} from 'react-native';
-import global from '../../../style/global';
+import global from '@/style/global';
 import {NavigationStackProp} from 'react-navigation-stack';
 
 const TestHome = (props) => {
@@ -19,6 +19,12 @@ const TestHome = (props) => {
           title="ChartKit"
           onPress={() => {
             navigation.navigate('ChartKit');
+          }}
+        />
+        <Button
+          title="Native Module"
+          onPress={() => {
+            navigation.navigate('NativeModule');
           }}
         />
       </View>
