@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import {StyleSheet, View, Text, Image, Button} from 'react-native';
-import {NavigationStackProp} from 'react-navigation-stack';
+import {useNavigation} from '@react-navigation/native';
 import reactotron from 'reactotron-react-native';
 
 // const cover = 'https://www.esunr.xyz:8080/api/utils/bingPic';
@@ -33,8 +33,8 @@ const styles = StyleSheet.create({
   },
 });
 
-const MovieList: React.FC<any> = (props) => {
-  const {navigation}: {navigation: NavigationStackProp} = props;
+const MovieList: React.FC<any> = () => {
+  const navigation = useNavigation();
   const movies = [
     {
       id: 1,
@@ -51,13 +51,10 @@ const MovieList: React.FC<any> = (props) => {
   ];
 
   useEffect(() => {
-    const didBlurSubscription = navigation.addListener('didBlur', () => {
+    const unsubscribe = navigation.addListener('blur', () => {
       reactotron.debug('didBlur listener emit');
     });
-    return () => {
-      reactotron.debug('didBlur removed');
-      didBlurSubscription.remove();
-    };
+    return () => unsubscribe;
   }, [navigation]);
 
   return (
@@ -68,7 +65,7 @@ const MovieList: React.FC<any> = (props) => {
             key={movie.id}
             style={styles.movieListItemWrapper}
             onTouchStart={() => {
-              navigation.navigate('MovieDetail', {movieInfo: movie});
+              navigation.navigate('MovieDetail');
             }}>
             <Image
               style={styles.movieCover}

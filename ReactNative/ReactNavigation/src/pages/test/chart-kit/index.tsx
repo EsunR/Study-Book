@@ -1,6 +1,6 @@
 import React from 'react';
-import {View, Text} from 'react-native';
-import global from '../../../style/global';
+import {View} from 'react-native';
+import global from '@/style/global';
 import {ProgressChart} from 'react-native-chart-kit';
 
 const ChartKit: React.FC<any> = () => {
