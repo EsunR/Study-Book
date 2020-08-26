@@ -36,7 +36,8 @@ module.exports = {
         })
       : undefined,
     optimization: {
-      splitChunks: undefined,
+      // https://github.com/vuejs/vue/issues/8488#issuecomment-404875405
+      splitChunks: TARGET_NODE ? false : undefined,
     },
     // 这是将服务器的整个输出构建为单个 JSON 文件的插件。
     // 服务端默认文件名为 `vue-ssr-server-bundle.json`

@@ -1,17 +1,28 @@
 const Express = require("express");
 const Vue = require("vue");
+const { createBundleRenderer } = require("vue-server-renderer");
+const serverBundle = require("../dist/server/vue-ssr-server-bundle.json");
+const clientManifest = require("../dist/client/vue-ssr-client-manifest.json");
+const fs = require("fs");
 
 const app = Express();
-const page = new Vue({
-  template: "<div>Hi~</div>",
+const renderer = createBundleRenderer(serverBundle, {
+  runInNewContext: false,
+  template: fs.readFileSync("../public/index.tmp.html", "utf-8"),
+  clientManifest,
 });
-const renderer = require("vue-server-renderer").createRenderer();
 
-//  渲染器渲染 page 可以得到 html 内容
+// 中间件处理静态文件请求
+// 如果不关闭 index，那么会直接读取静态服务器的 index.html，导致跳过预渲染
+app.use(Express.static("../dist/client", { index: false }));
 
-app.get("/", async (req, res) => {
+app.get("*", async (req, res) => {
   try {
-    const html = await renderer.renderToString(page);
+    const context = {
+      url: req.url,
+      title: "ssr test",
+    };
+    const html = await renderer.renderToString(context);
     res.send(html);
   } catch (error) {
     console.log(error);
