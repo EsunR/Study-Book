@@ -13,6 +13,7 @@ import com.facebook.soloader.SoLoader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+import xyz.esunr.react_native_mtj.BaiduMtjPackage;
 import xyz.esunr.react_native_mtj.CustomToastPackage;
 
 public class MainApplication extends Application implements ReactApplication {
@@ -31,6 +32,7 @@ public class MainApplication extends Application implements ReactApplication {
                     // Packages that cannot be autolinked yet can be added manually here, for example:
                     // packages.add(new MyReactNativePackage());
                     packages.add(new CustomToastPackage());
+                    packages.add(new BaiduMtjPackage());
                     return packages;
                 }
 
