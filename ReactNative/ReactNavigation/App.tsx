@@ -13,7 +13,7 @@ import TestHome from '@/pages/test';
 import SvgTest from '@/pages/test/svg-test';
 import ChartKit from '@/pages/test/chart-kit';
 import NativeModule from '@/pages/test/native-module';
-import BaiduMtj from '@/pages/test/native-module/components/BaiduMtj';
+import RNBaiduMtj from 'react-native-baidu-mtj';
 
 const App = () => {
   const Stack = createStackNavigator();
@@ -61,8 +61,8 @@ const App = () => {
   );
 
   useEffect(() => {
-    BaiduMtj.start();
-    BaiduMtj.setDebug(true);
+    RNBaiduMtj.start();
+    RNBaiduMtj.setDebugOn(true);
   }, []);
 
   return (
