@@ -5698,8 +5698,10 @@ react-lifecycles-compat@^3.0.4:
   resolved "https://registry.npm.taobao.org/react-lifecycles-compat/download/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha1-TxonOv38jzSIqMUWv9p4+HI1I2I=
 
-"react-native-baidu-mtj@file:./node_modules/react-native-baidu-mtj":
+react-native-baidu-mtj@^1.0.0:
   version "1.0.0"
+  resolved "https://registry.npm.taobao.org/react-native-baidu-mtj/download/react-native-baidu-mtj-1.0.0.tgz#d3c03e352ade6762205dfd220e9dd8cce9b527de"
+  integrity sha1-08A+NSreZ2IgXf0iDp3YzOm1J94=
 
 react-native-chart-kit@^6.4.1:
   version "6.4.1"
