@@ -27,6 +27,18 @@ const TestHome = (props) => {
             navigation.navigate('NativeModule');
           }}
         />
+        <Button
+          title="Photo"
+          onPress={() => {
+            navigation.navigate('Photo');
+          }}
+        />
+        <Button
+          title="Login"
+          onPress={() => {
+            navigation.navigate('Login');
+          }}
+        />
       </View>
     </View>
   );

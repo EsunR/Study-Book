@@ -1,4 +1,6 @@
 package com.reactnativedemo;
 
-public class MyProvider {
+import androidx.core.content.FileProvider;
+
+public class MyProvider extends FileProvider {
 }

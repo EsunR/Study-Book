@@ -3,7 +3,7 @@
 buildscript {
     ext {
         buildToolsVersion = "29.0.2"
-        minSdkVersion = 16
+        minSdkVersion = 19
         compileSdkVersion = 29
         targetSdkVersion = 29
     }
@@ -33,5 +33,11 @@ allprojects {
         google()
         jcenter()
         maven { url 'https://www.jitpack.io' }
+
+        // ADD THIS
+        maven { url 'https://maven.google.com' }
+        // ADD THIS
+        maven { url "https://jitpack.io" }
+        maven { url "https://raw.githubusercontent.com/Pgyer/mvn_repo_pgyer/master" }
     }
 }
