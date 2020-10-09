@@ -14,6 +14,7 @@ import SvgTest from '@/pages/test/svg-test';
 import ChartKit from '@/pages/test/chart-kit';
 import NativeModule from '@/pages/test/native-module';
 import RNBaiduMtj from 'react-native-baidu-mtj';
+import Camera from '@/pages/test/camera';
 
 const App = () => {
   const Stack = createStackNavigator();
@@ -57,6 +58,7 @@ const App = () => {
       <Stack.Screen name="SvgTest" component={SvgTest} />
       <Stack.Screen name="ChartKit" component={ChartKit} />
       <Stack.Screen name="NativeModule" component={NativeModule} />
+      <Stack.Screen name="Camera" component={Camera} />
     </Stack.Navigator>
   );
 

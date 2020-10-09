@@ -5703,6 +5703,13 @@ react-native-baidu-mtj@^1.0.0:
   resolved "https://registry.npm.taobao.org/react-native-baidu-mtj/download/react-native-baidu-mtj-1.0.0.tgz#d3c03e352ade6762205dfd220e9dd8cce9b527de"
   integrity sha1-08A+NSreZ2IgXf0iDp3YzOm1J94=
 
+react-native-camera@^3.37.0:
+  version "3.37.0"
+  resolved "https://registry.npm.taobao.org/react-native-camera/download/react-native-camera-3.37.0.tgz#fd0df704392735ede5935627b6358be379e97e27"
+  integrity sha1-/Q33BDknNe3lk1YntjWL43npfic=
+  dependencies:
+    prop-types "^15.6.2"
+
 react-native-chart-kit@^6.4.1:
   version "6.4.1"
   resolved "https://registry.npm.taobao.org/react-native-chart-kit/download/react-native-chart-kit-6.4.1.tgz#ca8d2c12f5b8fa58e2ad3f0262417fd4f0f608c4"

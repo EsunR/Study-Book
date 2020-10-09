@@ -8,7 +8,7 @@ const TestHome = (props) => {
 
   return (
     <View style={[global.flexCenter, global.fullWH]}>
-      <View style={{width: 200}}>
+      <View style={{width: 200, height: 200, justifyContent: 'space-between'}}>
         <Button
           title="SvgTest"
           onPress={() => {
@@ -25,6 +25,12 @@ const TestHome = (props) => {
           title="Native Module"
           onPress={() => {
             navigation.navigate('NativeModule');
+          }}
+        />
+        <Button
+          title="Camera"
+          onPress={() => {
+            navigation.navigate('Camera');
           }}
         />
       </View>
