@@ -15,6 +15,8 @@ import ChartKit from '@/pages/test/chart-kit';
 import NativeModule from '@/pages/test/native-module';
 import RNBaiduMtj from 'react-native-baidu-mtj';
 import Camera from '@/pages/test/camera';
+import Photo from '@/pages/test/photo';
+import Login from '@/pages/test/login';
 
 const App = () => {
   const Stack = createStackNavigator();
@@ -59,6 +61,8 @@ const App = () => {
       <Stack.Screen name="ChartKit" component={ChartKit} />
       <Stack.Screen name="NativeModule" component={NativeModule} />
       <Stack.Screen name="Camera" component={Camera} />
+      <Stack.Screen name="Photo" component={Photo} />
+      <Stack.Screen name="Login" component={Login} />
     </Stack.Navigator>
   );
 
