@@ -1,8 +1,16 @@
 import React from "react";
 import { BrowserRouter as Router, Link, Route } from "react-router-dom";
+import { fas } from "@fortawesome/free-solid-svg-icons";
+
+// Pages
 import HomePage from "./pages/home";
 import ButtonDemo from "./pages/button";
 import MenuDemo from "./pages/menu";
+import IconDemo from "./pages/icon";
+import { library } from "@fortawesome/fontawesome-svg-core";
+
+// add icon
+library.add(fas);
 
 function App() {
   return (
@@ -21,6 +29,9 @@ function App() {
             <li>
               <Link to="/menu">Menu</Link>
             </li>
+            <li>
+              <Link to="/icon">Icon</Link>
+            </li>
           </ul>
         </div>
         {/* 目录 */}
@@ -30,6 +41,7 @@ function App() {
           <Route exact path="/" component={HomePage} />
           <Route exact path="/button" component={ButtonDemo} />
           <Route exact path="/menu" component={MenuDemo} />
+          <Route exact path="/icon" component={IconDemo} />
         </div>
         {/* Content */}
       </div>
