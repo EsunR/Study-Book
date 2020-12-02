@@ -8,6 +8,7 @@ import ButtonDemo from "./pages/button";
 import MenuDemo from "./pages/menu";
 import IconDemo from "./pages/icon";
 import { library } from "@fortawesome/fontawesome-svg-core";
+import TransitionDemo from "./pages/transition";
 
 // add icon
 library.add(fas);
@@ -32,6 +33,9 @@ function App() {
             <li>
               <Link to="/icon">Icon</Link>
             </li>
+            <li>
+              <Link to="/transition">Transition</Link>
+            </li>
           </ul>
         </div>
         {/* 目录 */}
@@ -42,6 +46,7 @@ function App() {
           <Route exact path="/button" component={ButtonDemo} />
           <Route exact path="/menu" component={MenuDemo} />
           <Route exact path="/icon" component={IconDemo} />
+          <Route exact path="/transition" component={TransitionDemo} />
         </div>
         {/* Content */}
       </div>

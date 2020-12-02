@@ -7,8 +7,11 @@
 // mixin
 @import "./mixin";
 
-//layout
+// layout
 @import "./reboot";
+
+// animate
+@import "./animation";
 
 // component
 @import "../components/Button/style";
