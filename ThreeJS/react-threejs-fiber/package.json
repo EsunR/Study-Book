@@ -36,6 +36,8 @@
   },
   "devDependencies": {
     "@types/dat.gui": "^0.7.6",
-    "@types/stats": "^0.16.30"
+    "@types/stats": "^0.16.30",
+    "file-loader": "^6.2.0",
+    "json-loader": "^0.5.7"
   }
 }
