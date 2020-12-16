@@ -1,15 +1,26 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Layer, Stage, Rect, Circle } from 'react-konva';
 import Machine from './components/Machine';
 
 const index = () => {
-  useEffect(() => {}, []);
+  const [canvasHeight, setCanvasHeight] = useState<number>(window.innerHeight);
+  const [canvasWidth, setCanvasWidth] = useState<number>(window.innerWidth);
+
+  function computeCanvasSize() {
+    setCanvasHeight(window.innerHeight);
+    setCanvasWidth(window.innerWidth);
+  }
+
+  useEffect(() => {
+    window.addEventListener('resize', computeCanvasSize);
+    return () => {
+      window.removeEventListener('resize', computeCanvasSize);
+    };
+  }, []);
 
   return (
-    <Stage width={window.innerWidth} height={window.innerHeight}>
-      <Layer>
-        <Rect width={50} height={50} fill="red" />
-        <Circle x={200} y={200} stroke="black" radius={50} />
+    <Stage width={canvasWidth} height={canvasHeight}>
+      <Layer c>
         <Machine />
       </Layer>
     </Stage>
