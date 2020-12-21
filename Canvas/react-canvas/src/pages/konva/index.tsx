@@ -72,10 +72,6 @@ const index = () => {
     render();
   }, []);
 
-  useEffect(() => {
-    console.log(animProps.opacity);
-  }, [animProps.opacity]);
-
   return <div id="container"></div>;
 };
 

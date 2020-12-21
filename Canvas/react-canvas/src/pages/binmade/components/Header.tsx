@@ -1,19 +1,7 @@
 import { Text as TextInstance } from 'konva/types/shapes/Text';
-import React, {
-  LegacyRef,
-  RefObject,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
-import {
-  Group,
-  Rect,
-  Shape,
-  KonvaNodeComponent,
-  Image,
-  Text,
-} from 'react-konva';
+import React, { useEffect, useRef, useState } from 'react';
+import { Group, Image, Text } from 'react-konva';
+import ScreenTheme from '../localfiles/theme';
 
 const Header = () => {
   const [headerBgImg, setHeaderBgImage] = useState<HTMLImageElement>();
@@ -38,15 +26,15 @@ const Header = () => {
 
   return (
     <Group>
-      <Image image={headerBgImg} width={1920} height={100} />
+      <Image image={headerBgImg} width={1920} height={50} y={32} />
       <Text
-        text="BinMade纺织智能制造平台"
-        fill="#FFFFFF"
+        text="定型机智能监控"
+        fill={ScreenTheme.normal}
         fontSize={30}
         align="center"
         ref={textRef}
         x={1920 / 2}
-        y={30}
+        y={25}
       />
     </Group>
   );

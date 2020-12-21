@@ -1,19 +1,24 @@
 import Konva from 'konva';
+import { Group as GroupInstance } from 'konva/types/Group';
+import { Image as ImageInstance } from 'konva/types/shapes/Image';
+import { Rect as RectInstance } from 'konva/types/shapes/Rect';
 import { Star as StarInstance } from 'konva/types/shapes/Star';
 import React, { ReactElement, useEffect, useMemo, useRef } from 'react';
-import { Group, Rect, Text, Circle, Shape } from 'react-konva';
+import { Group, Rect, Text, Circle, Shape, Image } from 'react-konva';
 import ScreenTheme from '../localfiles/theme';
-import { IMachine, IMachineStatus } from './MachineView';
+import { IMachine, IMachineData, MachineStatus } from './MachineView';
+import CanvasImage from './subcomponents/CanvasImage';
+import TextGroup from './subcomponents/TextGroup';
 
 /**
  * 车厢
  */
 const MachineBox: React.FC<{
-  status: IMachineStatus;
+  data: IMachineData;
   width: number;
 } & Konva.NodeConfig> = props => {
-  const { status, width, ...resetNodeProps } = props;
-  const fanRef = useRef<StarInstance>(null);
+  const { data, width, ...resetNodeProps } = props;
+  const fanRef = useRef<ImageInstance>(null);
   const paddingHoz = useMemo(() => {
     return width * 0.1;
   }, [width]);
@@ -24,6 +29,8 @@ const MachineBox: React.FC<{
       return;
     }
     const fan = fanRef.current;
+    fan.offsetX(fan.getWidth() / 2);
+    fan.offsetY(fan.getHeight() / 2);
     var angularSpeed = 90;
     var anim = new Konva.Animation(function(frame) {
       if (!frame) {
@@ -39,7 +46,7 @@ const MachineBox: React.FC<{
 
   useEffect(() => {
     startFanAnim();
-  }, []);
+  }, [fanRef]);
 
   return (
     <Group {...resetNodeProps}>
@@ -60,7 +67,12 @@ const MachineBox: React.FC<{
           />
         </Group>
         <Group x={paddingHoz} y={paddingVer + 20}>
-          <Rect width={15} height={20} stroke={ScreenTheme.normal} y={7} />
+          <CanvasImage
+            source={require('@/assets/fire_icon.png')}
+            width={15}
+            height={20}
+            y={7}
+          />
           <Text
             x={22}
             fontSize={ScreenTheme.basicFontSize}
@@ -95,7 +107,14 @@ const MachineBox: React.FC<{
           />
         </Group>
         <Group x={paddingHoz} y={paddingVer + 20}>
-          <Rect width={18} height={18} stroke={ScreenTheme.normal} />
+          <CanvasImage
+            source={require('@/assets/fan_icon.png')}
+            width={18}
+            height={18}
+            x={9}
+            y={9}
+            ref={fanRef}
+          />
           <Text
             text="1750转"
             fill={ScreenTheme.normal}
@@ -104,17 +123,6 @@ const MachineBox: React.FC<{
             y={3}
           />
         </Group>
-        {/* <Star
-          innerRadius={8}
-          outerRadius={10}
-          numPoints={5}
-          fill="yellow"
-          width={30}
-          height={30}
-          x={20}
-          y={30}
-          ref={fanRef}
-        /> */}
       </Group>
       {/* 风速 */}
     </Group>
@@ -126,13 +134,21 @@ const MachineBox: React.FC<{
  */
 const MachineHead: React.FC<Konva.NodeConfig> = props => {
   return (
-    <Rect
-      width={120}
-      height={168}
-      stroke={ScreenTheme.normal}
-      strokeWidth={2}
-      {...props}
-    />
+    <Group {...props}>
+      <TextGroup
+        texts={['超喂', `上超:${20}`, `下超:${-5}`, `毛刷:${10}`]}
+        lineHeight={23}
+        fontSize={14}
+        fill={ScreenTheme.normal}
+        x={8}
+        y={26}
+      />
+      <CanvasImage
+        source={require('@/assets/dingxingji_head.png')}
+        width={190}
+        height={182}
+      />
+    </Group>
   );
 };
 
@@ -141,13 +157,13 @@ const MachineHead: React.FC<Konva.NodeConfig> = props => {
  */
 const MachineTail: React.FC<Konva.NodeConfig> = props => {
   return (
-    <Rect
-      width={166}
-      height={194}
-      stroke={ScreenTheme.normal}
-      strokeWidth={2}
-      {...props}
-    />
+    <Group {...props}>
+      <CanvasImage
+        source={require('@/assets/dingxingji_tail.png')}
+        width={166}
+        height={194}
+      />
+    </Group>
   );
 };
 
@@ -158,7 +174,7 @@ const ConveyorBelt: React.FC<Konva.NodeConfig> = props => {
   const { width = 102, ...resetNodeProps } = props;
   const processItemWidth = 25;
   const processItemHeight = 20;
-  const processHozPadding = 20; // 滚动条内容部分水平方向上的 padding
+  const processHozPadding = 30; // 滚动条内容部分水平方向上的 padding
 
   const renderProcessItem = () => {
     const processItems: ReactElement[] = [];
@@ -202,6 +218,33 @@ const ConveyorBelt: React.FC<Konva.NodeConfig> = props => {
 
   return (
     <Group {...resetNodeProps}>
+      {/* 车速文字 */}
+      <Group x={75} y={-50}>
+        <Text
+          text="车速:"
+          fontSize={16}
+          fill={ScreenTheme.normal}
+          ref={ref => {
+            if (ref) {
+              const textWidth = ref.getWidth();
+              ref.offsetX(textWidth / 2);
+            }
+          }}
+        />
+        <Text
+          text="50M/MIN"
+          fontSize={16}
+          y={22}
+          fill={ScreenTheme.normal}
+          ref={ref => {
+            if (ref) {
+              const textWidth = ref.getWidth();
+              ref.offsetX(textWidth / 2);
+            }
+          }}
+        />
+      </Group>
+      {/* 车速文字 */}
       <Rect
         width={width}
         height={20}
@@ -216,7 +259,7 @@ const ConveyorBelt: React.FC<Konva.NodeConfig> = props => {
             ref.clip({
               x: 0,
               y: 0,
-              width: width - processHozPadding * 2,
+              width: width - processHozPadding * 2 - 2 /** 2 像素修正 */,
               height: 20,
             });
           }
@@ -236,20 +279,94 @@ type SettingMachineProps = {
 } & Konva.NodeConfig;
 
 const SettingMachine: React.FC<SettingMachineProps> = props => {
+  const settingMachineWrapperRef = useRef<GroupInstance>(null);
+  const badgeRef = useRef<GroupInstance>(null);
   const { machine, ...resetNodeProps } = props;
 
+  const status = useMemo(() => {
+    return machine.status;
+  }, [machine]);
+
+  const statusColor = useMemo(() => {
+    switch (status) {
+      case 'danger':
+        return ScreenTheme.danger;
+      case 'normal':
+        return ScreenTheme.normal;
+      case 'standby':
+        return ScreenTheme.standby;
+      default:
+        return ScreenTheme.normal;
+    }
+  }, [status]);
+
+  const statusTextColor = useMemo(() => {
+    switch (status) {
+      case 'normal':
+        return '#111111';
+      case 'danger':
+        return '#FFFFFF';
+      case 'standby':
+        return '#FFFFFF';
+      default:
+        return '#111111';
+    }
+  }, [status]);
+
+  const statusText = useMemo(() => {
+    switch (status) {
+      case 'normal':
+        return '正常';
+      case 'danger':
+        return '预警';
+      case 'standby':
+        return '待机';
+      default:
+        return '正常';
+    }
+  }, [status]);
+
+  useEffect(() => {
+    if (badgeRef.current && settingMachineWrapperRef.current) {
+      badgeRef.current.x(settingMachineWrapperRef.current.width() - 60);
+    }
+  }, [badgeRef, settingMachineWrapperRef]);
+
   return (
-    <Group {...resetNodeProps} width={1530} height={306}>
+    <Group
+      {...resetNodeProps}
+      ref={settingMachineWrapperRef}
+      width={1530}
+      height={306}
+    >
       <Rect
         width={1530}
         height={306}
-        stroke={ScreenTheme.normal}
+        stroke={statusColor}
         strokeWidth={1}
+        shadowColor={statusColor}
+        shadowBlur={10}
       />
+      <Rect height={306} width={4} fill={statusColor} />
 
       {/* Badge */}
-      <Group>
-        <Rect  />
+      <Group ref={badgeRef}>
+        <Rect
+          height={28}
+          width={60}
+          fill={statusColor}
+          cornerRadius={[0, 0, 0, 10]}
+        />
+        <Text
+          text={statusText}
+          fill={statusTextColor}
+          fontSize={18}
+          width={37}
+          height={18}
+          align="center"
+          x={11}
+          y={7}
+        />
       </Group>
       {/* Badge */}
 
@@ -278,49 +395,29 @@ const SettingMachine: React.FC<SettingMachineProps> = props => {
 
       {/* 机器 */}
       <Group y={67}>
-        <MachineHead x={51} y={26} />
+        <MachineHead x={51} y={12} />
+
+        {/* 中部车厢 & 传送带 */}
+        <ConveyorBelt width={1227} x={141} y={114} />
         <Group x={267} y={29}>
-          {machine.status.map((items, index) => {
+          {machine.data.map((items, index) => {
             const wrapperWidth = 1020;
-            const itemWidth = wrapperWidth / machine.status.length;
+            const itemWidth = wrapperWidth / machine.data.length;
             return (
               <MachineBox
                 key={index}
-                status={items}
+                data={items}
                 x={index * itemWidth}
                 width={itemWidth}
               />
             );
           })}
         </Group>
-        <ConveyorBelt width={1200} y={113} x={150} />
-        <MachineTail x={1333} />
+        {/* 中部车厢 & 传送带 */}
 
-        <Group x={218} y={65}>
-          <Text
-            text="车速:"
-            fontSize={16}
-            fill={ScreenTheme.normal}
-            ref={ref => {
-              if (ref) {
-                const textWidth = ref.getWidth();
-                ref.offsetX(textWidth / 2);
-              }
-            }}
-          />
-          <Text
-            text="50M/MIN"
-            fontSize={16}
-            y={22}
-            fill={ScreenTheme.normal}
-            ref={ref => {
-              if (ref) {
-                const textWidth = ref.getWidth();
-                ref.offsetX(textWidth / 2);
-              }
-            }}
-          />
-        </Group>
+        {/* 机尾 */}
+        <MachineTail x={1333} />
+        {/* 机尾 */}
       </Group>
       {/* 机器 */}
     </Group>

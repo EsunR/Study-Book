@@ -24,6 +24,7 @@
     "@umijs/preset-react": "1.x",
     "@umijs/test": "^3.2.7",
     "dat.gui": "^0.7.7",
+    "echarts": "^5.0.0",
     "konva": "^7.2.1",
     "lint-staged": "^10.0.7",
     "prettier": "^1.19.1",

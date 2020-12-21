@@ -1,16 +1,19 @@
 import Konva from 'konva';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Group } from 'react-konva';
 import SettingMachine from './SettingMachine';
 
-export interface IMachineStatus {
+export interface IMachineData {
   wind: { current: number };
   temperature: { current: number; setting: number };
 }
 
+export type MachineStatus = 'normal' | 'danger' | 'standby';
+
 export interface IMachine {
   machine_name: string;
-  status: IMachineStatus[];
+  data: IMachineData[];
+  status: MachineStatus;
 }
 
 type MachineViewProps = {

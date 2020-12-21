@@ -1,10 +1,11 @@
-import React, { ReactElement, useEffect, useMemo, useState } from 'react';
-import { Layer, Stage, Rect, Circle, Group } from 'react-konva';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Layer, Stage, Group, Rect } from 'react-konva';
 import Header from './components/Header';
-import Machine from './components/Machine';
 import styles from './index.less';
-import { useSpring, animated } from 'react-spring';
 import MachineView, { IMachine } from './components/MachineView';
+import MachineListView, {
+  MachineListViewProps,
+} from './components/MachineListView';
 
 const statusArr = new Array(10).fill({
   wind: {
@@ -19,21 +20,75 @@ const statusArr = new Array(10).fill({
 const mockData: IMachine[] = [
   {
     machine_name: '1#定型机',
-    status: statusArr,
+    data: statusArr,
+    status: 'normal',
   },
   {
     machine_name: '2#定型机',
-    status: statusArr,
+    data: statusArr,
+    status: 'standby',
   },
   {
     machine_name: '2#定型机',
-    status: statusArr,
+    data: statusArr,
+    status: 'danger',
+  },
+];
+
+const mockChartData: MachineListViewProps['chartData'] = [
+  {
+    name: '正常',
+    value: 6,
+  },
+  {
+    name: '异常',
+    value: 3,
+  },
+  {
+    name: '待机',
+    value: 3,
+  },
+];
+
+const mockMachineList: MachineListViewProps['machineList'] = [
+  {
+    name: '1#定型机',
+    status: 'normal',
+  },
+  {
+    name: '2#定型机',
+    status: 'danger',
+  },
+  {
+    name: '3#定型机',
+    status: 'standby',
+  },
+  {
+    name: '4#定型机',
+    status: 'normal',
+  },
+  {
+    name: '5#定型机',
+    status: 'danger',
+  },
+  {
+    name: '6#定型机',
+    status: 'danger',
+  },
+  {
+    name: '7#定型机',
+    status: 'normal',
+  },
+  {
+    name: '8#定型机',
+    status: 'normal',
   },
 ];
 
 const index = () => {
   const [canvasHeight, setCanvasHeight] = useState<number>(window.innerHeight);
   const [canvasWidth, setCanvasWidth] = useState<number>(window.innerWidth);
+  const [machineData, setMachineData] = useState<IMachine[]>([]);
 
   const scale = useMemo(() => {
     return canvasHeight / 1080;
@@ -56,9 +111,16 @@ const index = () => {
     setCanvasWidth(window.innerWidth);
   }
 
+  function fetchData() {
+    setTimeout(() => {
+      setMachineData(mockData);
+    }, 500);
+  }
+
   // Effect
   useEffect(() => {
     window.addEventListener('resize', computeCanvasSize);
+    fetchData();
     return () => {
       window.removeEventListener('resize', computeCanvasSize);
     };
@@ -66,14 +128,46 @@ const index = () => {
 
   return (
     <div className={styles.screen}>
+      {/* Dom 同步渲染区域 */}
+      <div
+        id="canvas-area"
+        style={{
+          width: 1920,
+          height: 1080,
+          // backgroundColor: '#eeeeee',
+          left: layerLayout.x - (1920 / 2) * (1 - window.innerHeight / 1080),
+          top: layerLayout.y - (1080 / 2) * (1 - window.innerHeight / 1080),
+          position: 'absolute',
+          transform: `scale(${window.innerHeight / 1080})`,
+          zIndex: -1,
+        }}
+      ></div>
+      {/* Dom 同步渲染区域 */}
+
+      {/* Canvas 渲染区域 */}
       <Stage width={canvasWidth} height={canvasHeight}>
+        {/* Static Layer */}
         <Layer {...layerLayout}>
           <Header />
         </Layer>
+        {/* Static Layer */}
+
+        {/* Anim Layer */}
         <Layer {...layerLayout}>
-          <MachineView machines={mockData} x={350} y={100} />
+          <Rect width={100} height={100} y={400} fill="pink" draggable />
+          {/* Content */}
+          <Group y={100}>
+            <MachineListView
+              chartData={mockChartData}
+              machineList={mockMachineList}
+            />
+            <MachineView machines={machineData} x={350} />
+          </Group>
+          {/* Content */}
         </Layer>
+        {/* Anim Layer */}
       </Stage>
+      {/* Canvas 渲染区域 */}
     </div>
   );
 };
