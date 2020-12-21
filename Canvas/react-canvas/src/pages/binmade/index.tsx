@@ -4,7 +4,32 @@ import Header from './components/Header';
 import Machine from './components/Machine';
 import styles from './index.less';
 import { useSpring, animated } from 'react-spring';
-import FuckingAnimTest from './components/FuckingAnimTest';
+import MachineView, { IMachine } from './components/MachineView';
+
+const statusArr = new Array(10).fill({
+  wind: {
+    current: 1750,
+  },
+  temperature: {
+    current: 1750,
+    setting: 195,
+  },
+});
+
+const mockData: IMachine[] = [
+  {
+    machine_name: '1#定型机',
+    status: statusArr,
+  },
+  {
+    machine_name: '2#定型机',
+    status: statusArr,
+  },
+  {
+    machine_name: '2#定型机',
+    status: statusArr,
+  },
+];
 
 const index = () => {
   const [canvasHeight, setCanvasHeight] = useState<number>(window.innerHeight);
@@ -18,7 +43,7 @@ const index = () => {
     const width = 1920;
     const height = 1080;
     return {
-      width,
+      // width,
       height,
       x: (canvasWidth - width * scale) / 2,
       y: (canvasHeight - height * scale) / 2,
@@ -31,26 +56,7 @@ const index = () => {
     setCanvasWidth(window.innerWidth);
   }
 
-  function renderMachine() {
-    const els: ReactElement[] = [];
-    const wrapperWidth = layerLayout.width;
-    const machineWidth = 100;
-    const machineHeight = 140;
-    const machineRowItem = 5;
-    const machineXSpace =
-      (wrapperWidth - machineWidth * machineRowItem) / (machineRowItem - 1);
-    const machineYSpace = 20;
-    for (let i = 0; i < 10; i++) {
-      els.push(
-        <Machine
-          x={(machineWidth + machineXSpace) * (i % machineRowItem)}
-          y={(machineHeight + machineYSpace) * Math.floor(i / 5)}
-        />,
-      );
-    }
-    return els;
-  }
-
+  // Effect
   useEffect(() => {
     window.addEventListener('resize', computeCanvasSize);
     return () => {
@@ -63,7 +69,9 @@ const index = () => {
       <Stage width={canvasWidth} height={canvasHeight}>
         <Layer {...layerLayout}>
           <Header />
-          <Group y={150}>{renderMachine()}</Group>
+        </Layer>
+        <Layer {...layerLayout}>
+          <MachineView machines={mockData} x={350} y={100} />
         </Layer>
       </Stage>
     </div>

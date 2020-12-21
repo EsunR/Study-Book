@@ -31,7 +31,7 @@ const index = () => {
 
     const circles: Circle[] = [];
 
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 100; i++) {
       var circle = new Konva.Circle({
         x: 100 + i * 60,
         y: 100,
@@ -55,14 +55,17 @@ const index = () => {
 
     var anim = new Konva.Animation(function(frame) {
       for (let i = 0; i <= circles.length; i++) {
-        if (circles[i] && circles[i].opacity) {
-          currentOpacity += 0.01;
+        if (circles[i] && circles[i].opacity && currentOpacity <= 1) {
           circles[i].opacity(currentOpacity);
         }
       }
+      // currentOpacity += 0.1;
+      // if (currentOpacity >= 1) {
+      //   currentOpacity = 0;
+      // }
     }, layer);
 
-    anim.start();
+    // anim.start();
   }
 
   useEffect(() => {

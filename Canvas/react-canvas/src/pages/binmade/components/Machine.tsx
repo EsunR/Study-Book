@@ -1,25 +1,28 @@
 import { NodeConfig } from 'konva/types/Node';
 import { Rect as RectInstance, RectConfig } from 'konva/types/shapes/Rect';
 import React, { useEffect, useRef, useState } from 'react';
-import { Group, Rect } from 'react-konva';
+import { Group, Layer, Rect } from 'react-konva';
 import { useSpring, animated } from 'react-spring';
 
-type MachineProps = {} & NodeConfig;
+type MachineProps = {
+  danger: boolean;
+} & NodeConfig;
 
 const OPACITY_END = 0.2;
 
 const Machine: React.FC<MachineProps> = props => {
+  const { danger } = props;
   const centerRectRef = useRef<RectInstance>(null);
   const animProps = useSpring<any>({
     from: {
       opacity: 1,
     },
-    // to: async (next: any) => {
-    //   while (1) {
-    //     await next({ opacity: 0 });
-    //     await next({ opacity: 1 });
-    //   }
-    // },
+    to: async (next: any) => {
+      while (1) {
+        await next({ opacity: 0.5 });
+        await next({ opacity: 1 });
+      }
+    },
   });
 
   const stockWidth = 3;
@@ -32,8 +35,6 @@ const Machine: React.FC<MachineProps> = props => {
     offsetX: -(stockWidth / 2),
     offsetY: -(stockWidth / 2),
   };
-
-  useEffect(() => {}, []);
 
   const AnimatedRect = animated(Rect);
 
@@ -64,7 +65,7 @@ const Machine: React.FC<MachineProps> = props => {
           'rgba(255,255,255,0)',
         ]}
         ref={centerRectRef}
-        opacity={animProps.opacity}
+        opacity={danger ? animProps.opacity : 1}
       />
       <Rect
         width={60}
