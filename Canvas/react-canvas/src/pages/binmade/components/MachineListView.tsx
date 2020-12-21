@@ -2,15 +2,17 @@ import { Group as GroupInstance } from 'konva/types/Group';
 import { NodeConfig } from 'konva/types/Node';
 import React from 'react';
 import { MachineStatus } from './MachineView';
-import { Group } from 'react-konva';
+import { Group, Rect, Text } from 'react-konva';
 import Portal from './subcomponents/Portal.js';
+import ScreenTheme from '../localfiles/theme';
+import MachineList from './MachineList';
 
-interface IMachineListViewChartData {
+export interface IMachineListViewChartData {
   name: string;
   value: number;
 }
 
-interface IMachineListItem {
+export interface IMachineListItem {
   name: string;
   status: MachineStatus;
 }
@@ -22,22 +24,40 @@ export type MachineListViewProps = {
 
 const MachineListView: React.FC<MachineListViewProps> = props => {
   const { chartData, machineList, ...resetNodeProps } = props;
+  const paddingHoz = 20;
+  const paddingVer = 25;
+
   return (
     <Group {...resetNodeProps}>
+      <Rect width={300} height={938} stroke="#00D8FF" strokeWidth={1} />
+      <Text
+        x={paddingHoz}
+        text="定型机信息总览"
+        fill={ScreenTheme.normal}
+        fontSize={18}
+        fontStyle="bold"
+        y={paddingVer}
+      />
+
+      {/* Chart */}
       <Portal targetWrapper={document.querySelector('#canvas-area')}>
         <div
           style={{
             position: 'absolute',
-            width: 200,
-            height: 200,
+            width: 250,
+            height: 250,
             backgroundColor: 'skyblue',
-            left: 0,
-            top: 0,
+            left: 67,
+            top: 187,
             zIndex: 999,
           }}
-          placeholder="DOM input from Konva nodes"
         />
       </Portal>
+      {/* Chart */}
+
+      {/* List */}
+      <MachineList listData={machineList} x={paddingHoz} y={380} />
+      {/* List */}
     </Group>
   );
 };

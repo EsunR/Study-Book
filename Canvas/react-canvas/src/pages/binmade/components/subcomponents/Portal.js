@@ -22,12 +22,12 @@ export default class Portal extends React.Component {
 
   renderPortal(props) {
     if (!this.props.node && !this.defaultNode) {
+      this.defaultNode = document.createElement('div');
       if (this.props.targetWrapper) {
-        this.defaultNode = this.props.targetWrapper;
+        this.props.targetWrapper.appendChild(this.defaultNode);
       } else {
-        this.defaultNode = document.createElement('div');
+        document.body.appendChild(this.defaultNode);
       }
-      document.body.appendChild(this.defaultNode);
     }
 
     let children = this.props.children;

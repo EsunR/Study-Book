@@ -94,11 +94,11 @@ const index = () => {
     return canvasHeight / 1080;
   }, [canvasHeight]);
 
-  const layerLayout = useMemo(() => {
+  const layout = useMemo(() => {
     const width = 1920;
     const height = 1080;
     return {
-      // width,
+      width,
       height,
       x: (canvasWidth - width * scale) / 2,
       y: (canvasHeight - height * scale) / 2,
@@ -128,46 +128,43 @@ const index = () => {
 
   return (
     <div className={styles.screen}>
-      {/* Dom 同步渲染区域 */}
+      {/* Canvas 自动缩放渲染区域 */}
       <div
         id="canvas-area"
         style={{
-          width: 1920,
-          height: 1080,
-          // backgroundColor: '#eeeeee',
-          left: layerLayout.x - (1920 / 2) * (1 - window.innerHeight / 1080),
-          top: layerLayout.y - (1080 / 2) * (1 - window.innerHeight / 1080),
+          width: layout.width,
+          height: layout.height,
+          left: layout.x - (layout.width / 2) * (1 - scale),
+          top: layout.y - (layout.height / 2) * (1 - scale),
           position: 'absolute',
-          transform: `scale(${window.innerHeight / 1080})`,
-          zIndex: -1,
+          transform: `scale(${scale})`,
         }}
-      ></div>
-      {/* Dom 同步渲染区域 */}
+      >
+        {/* Canvas 渲染区域 */}
+        <Stage width={layout.width} height={layout.height}>
+          {/* Static Layer */}
+          <Layer>
+            <Header />
+          </Layer>
+          {/* Static Layer */}
 
-      {/* Canvas 渲染区域 */}
-      <Stage width={canvasWidth} height={canvasHeight}>
-        {/* Static Layer */}
-        <Layer {...layerLayout}>
-          <Header />
-        </Layer>
-        {/* Static Layer */}
-
-        {/* Anim Layer */}
-        <Layer {...layerLayout}>
-          <Rect width={100} height={100} y={400} fill="pink" draggable />
-          {/* Content */}
-          <Group y={100}>
-            <MachineListView
-              chartData={mockChartData}
-              machineList={mockMachineList}
-            />
-            <MachineView machines={machineData} x={350} />
-          </Group>
-          {/* Content */}
-        </Layer>
-        {/* Anim Layer */}
-      </Stage>
-      {/* Canvas 渲染区域 */}
+          {/* Anim Layer */}
+          <Layer>
+            {/* Content */}
+            <Group y={100}>
+              <MachineListView
+                x={40}
+                chartData={mockChartData}
+                machineList={mockMachineList}
+              />
+              <MachineView machines={machineData} x={350} />
+            </Group>
+            {/* Content */}
+          </Layer>
+          {/* Anim Layer */}
+        </Stage>
+      </div>
+      {/* Canvas 自动缩放渲染区域 */}
     </div>
   );
 };

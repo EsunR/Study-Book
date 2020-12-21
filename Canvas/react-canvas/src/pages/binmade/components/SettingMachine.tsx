@@ -5,6 +5,7 @@ import { Rect as RectInstance } from 'konva/types/shapes/Rect';
 import { Star as StarInstance } from 'konva/types/shapes/Star';
 import React, { ReactElement, useEffect, useMemo, useRef } from 'react';
 import { Group, Rect, Text, Circle, Shape, Image } from 'react-konva';
+import { getStatusColor, getStatusText } from '../controller';
 import ScreenTheme from '../localfiles/theme';
 import { IMachine, IMachineData, MachineStatus } from './MachineView';
 import CanvasImage from './subcomponents/CanvasImage';
@@ -288,16 +289,11 @@ const SettingMachine: React.FC<SettingMachineProps> = props => {
   }, [machine]);
 
   const statusColor = useMemo(() => {
-    switch (status) {
-      case 'danger':
-        return ScreenTheme.danger;
-      case 'normal':
-        return ScreenTheme.normal;
-      case 'standby':
-        return ScreenTheme.standby;
-      default:
-        return ScreenTheme.normal;
-    }
+    return getStatusColor(status);
+  }, [status]);
+
+  const statusText = useMemo(() => {
+    return getStatusText(status);
   }, [status]);
 
   const statusTextColor = useMemo(() => {
@@ -310,19 +306,6 @@ const SettingMachine: React.FC<SettingMachineProps> = props => {
         return '#FFFFFF';
       default:
         return '#111111';
-    }
-  }, [status]);
-
-  const statusText = useMemo(() => {
-    switch (status) {
-      case 'normal':
-        return '正常';
-      case 'danger':
-        return '预警';
-      case 'standby':
-        return '待机';
-      default:
-        return '正常';
     }
   }, [status]);
 
