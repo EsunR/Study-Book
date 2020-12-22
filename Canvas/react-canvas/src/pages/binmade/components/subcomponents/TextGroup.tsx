@@ -23,6 +23,7 @@ const TextGroup: React.FC<TextGroupProps> = props => {
       {texts instanceof Array
         ? texts.map((text, index) => (
             <Text
+              key={index}
               lineHeight={1}
               fill={fill}
               fontFamily={fontFamily}

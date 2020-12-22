@@ -1,15 +1,22 @@
 import Konva from 'konva';
 import { Group as GroupInstance } from 'konva/types/Group';
 import { Image as ImageInstance } from 'konva/types/shapes/Image';
-import { Rect as RectInstance } from 'konva/types/shapes/Rect';
-import { Star as StarInstance } from 'konva/types/shapes/Star';
-import React, { ReactElement, useEffect, useMemo, useRef } from 'react';
-import { Group, Rect, Text, Circle, Shape, Image } from 'react-konva';
+import React, {
+  ReactElement,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
+import { Group, Rect, Text, Circle, Shape } from 'react-konva';
 import { getStatusColor, getStatusText } from '../controller';
+import useMachineStatus from '../hook/useMachineStatus';
 import ScreenTheme from '../localfiles/theme';
 import { IMachine, IMachineData, MachineStatus } from './MachineView';
 import CanvasImage from './subcomponents/CanvasImage';
 import TextGroup from './subcomponents/TextGroup';
+
+const MachineContext = React.createContext<IMachine | undefined>(undefined);
 
 /**
  * 车厢
@@ -20,6 +27,7 @@ const MachineBox: React.FC<{
 } & Konva.NodeConfig> = props => {
   const { data, width, ...resetNodeProps } = props;
   const fanRef = useRef<ImageInstance>(null);
+  const machine = useContext(MachineContext);
   const paddingHoz = useMemo(() => {
     return width * 0.1;
   }, [width]);
@@ -30,8 +38,6 @@ const MachineBox: React.FC<{
       return;
     }
     const fan = fanRef.current;
-    fan.offsetX(fan.getWidth() / 2);
-    fan.offsetY(fan.getHeight() / 2);
     var angularSpeed = 90;
     var anim = new Konva.Animation(function(frame) {
       if (!frame) {
@@ -46,8 +52,10 @@ const MachineBox: React.FC<{
   }
 
   useEffect(() => {
-    startFanAnim();
-  }, [fanRef]);
+    if (machine && machine.status !== 'standby') {
+      startFanAnim();
+    }
+  }, [fanRef, machine]);
 
   return (
     <Group {...resetNodeProps}>
@@ -114,6 +122,8 @@ const MachineBox: React.FC<{
             height={18}
             x={9}
             y={9}
+            offsetX={9}
+            offsetY={9}
             ref={fanRef}
           />
           <Text
@@ -157,13 +167,36 @@ const MachineHead: React.FC<Konva.NodeConfig> = props => {
  * 机尾
  */
 const MachineTail: React.FC<Konva.NodeConfig> = props => {
+  const { ...resetNodeProps } = props;
+  const machine = useContext(MachineContext);
+
   return (
-    <Group {...props}>
+    <Group {...resetNodeProps}>
       <CanvasImage
         source={require('@/assets/dingxingji_tail.png')}
         width={166}
         height={194}
       />
+      {machine && machine.status === 'standby' ? null : (
+        <Shape
+          stroke={ScreenTheme.normal}
+          sceneFunc={(context, shape) => {
+            const baseX = 120;
+            const baseY = 56;
+            context.beginPath();
+            context.moveTo(baseX, baseY);
+            context.bezierCurveTo(
+              baseX - 50,
+              baseY + 50,
+              baseX + 20,
+              baseY + 70,
+              baseX + 5,
+              165,
+            );
+            context.fillStrokeShape(shape);
+          }}
+        />
+      )}
     </Group>
   );
 };
@@ -173,6 +206,7 @@ const MachineTail: React.FC<Konva.NodeConfig> = props => {
  */
 const ConveyorBelt: React.FC<Konva.NodeConfig> = props => {
   const { width = 102, ...resetNodeProps } = props;
+  const machine = useContext(MachineContext);
   const processItemWidth = 25;
   const processItemHeight = 20;
   const processHozPadding = 30; // 滚动条内容部分水平方向上的 padding
@@ -266,7 +300,7 @@ const ConveyorBelt: React.FC<Konva.NodeConfig> = props => {
           }
         }}
       >
-        {renderProcessItem()}
+        {machine && machine.status === 'standby' ? null : renderProcessItem()}
       </Group>
     </Group>
   );
@@ -288,13 +322,7 @@ const SettingMachine: React.FC<SettingMachineProps> = props => {
     return machine.status;
   }, [machine]);
 
-  const statusColor = useMemo(() => {
-    return getStatusColor(status);
-  }, [status]);
-
-  const statusText = useMemo(() => {
-    return getStatusText(status);
-  }, [status]);
+  const { statusColor, statusText } = useMachineStatus(status);
 
   const statusTextColor = useMemo(() => {
     switch (status) {
@@ -316,94 +344,96 @@ const SettingMachine: React.FC<SettingMachineProps> = props => {
   }, [badgeRef, settingMachineWrapperRef]);
 
   return (
-    <Group
-      {...resetNodeProps}
-      ref={settingMachineWrapperRef}
-      width={1530}
-      height={306}
-    >
-      <Rect
+    <MachineContext.Provider value={machine}>
+      <Group
+        {...resetNodeProps}
+        ref={settingMachineWrapperRef}
         width={1530}
         height={306}
-        stroke={statusColor}
-        strokeWidth={1}
-        shadowColor={statusColor}
-        shadowBlur={10}
-      />
-      <Rect height={306} width={4} fill={statusColor} />
-
-      {/* Badge */}
-      <Group ref={badgeRef}>
+      >
         <Rect
-          height={28}
-          width={60}
-          fill={statusColor}
-          cornerRadius={[0, 0, 0, 10]}
+          width={1530}
+          height={306}
+          stroke={statusColor}
+          strokeWidth={1}
+          shadowColor={statusColor}
+          shadowBlur={10}
         />
-        <Text
-          text={statusText}
-          fill={statusTextColor}
-          fontSize={18}
-          width={37}
-          height={18}
-          align="center"
-          x={11}
-          y={7}
-        />
-      </Group>
-      {/* Badge */}
+        <Rect height={306} width={4} fill={statusColor} />
 
-      {/* 顶部信息 */}
-      <Group y={27}>
-        <Group x={31} y={7}>
-          <Circle radius={5} fill={ScreenTheme.normal} />
-          <Circle radius={10} fill={ScreenTheme.normal} opacity={0.5} />
+        {/* Badge */}
+        <Group ref={badgeRef}>
+          <Rect
+            height={28}
+            width={60}
+            fill={statusColor}
+            cornerRadius={[0, 0, 0, 10]}
+          />
+          <Text
+            text={statusText}
+            fill={statusTextColor}
+            fontSize={18}
+            width={37}
+            height={18}
+            align="center"
+            x={11}
+            y={7}
+          />
         </Group>
-        <Text
-          text={machine.machine_name}
-          fontSize={18}
-          fill={ScreenTheme.normal}
-          x={51}
-          y={0}
-        />
-        <Text
-          x={156}
-          y={3}
-          fill="#FFFFFF"
-          text={`生产卡信息：怡华 31024132 75D雪纺 10#黑色 机长-李华 挡车工-王军`}
-          fontSize={14}
-        />
-      </Group>
-      {/* 顶部信息 */}
+        {/* Badge */}
 
-      {/* 机器 */}
-      <Group y={67}>
-        <MachineHead x={51} y={12} />
-
-        {/* 中部车厢 & 传送带 */}
-        <ConveyorBelt width={1227} x={141} y={114} />
-        <Group x={267} y={29}>
-          {machine.data.map((items, index) => {
-            const wrapperWidth = 1020;
-            const itemWidth = wrapperWidth / machine.data.length;
-            return (
-              <MachineBox
-                key={index}
-                data={items}
-                x={index * itemWidth}
-                width={itemWidth}
-              />
-            );
-          })}
+        {/* 顶部信息 */}
+        <Group y={27}>
+          <Group x={31} y={7}>
+            <Circle radius={5} fill={ScreenTheme.normal} />
+            <Circle radius={10} fill={ScreenTheme.normal} opacity={0.5} />
+          </Group>
+          <Text
+            text={machine.machine_name}
+            fontSize={18}
+            fill={ScreenTheme.normal}
+            x={51}
+            y={0}
+          />
+          <Text
+            x={156}
+            y={3}
+            fill="#FFFFFF"
+            text={`生产卡信息：怡华 31024132 75D雪纺 10#黑色 机长-李华 挡车工-王军`}
+            fontSize={14}
+          />
         </Group>
-        {/* 中部车厢 & 传送带 */}
+        {/* 顶部信息 */}
 
-        {/* 机尾 */}
-        <MachineTail x={1333} />
-        {/* 机尾 */}
+        {/* 机器 */}
+        <Group y={67}>
+          <MachineHead x={51} y={12} />
+
+          {/* 中部车厢 & 传送带 */}
+          <ConveyorBelt width={1227} x={141} y={114} />
+          <Group x={267} y={29}>
+            {machine.data.map((items, index) => {
+              const wrapperWidth = 1020;
+              const itemWidth = wrapperWidth / machine.data.length;
+              return (
+                <MachineBox
+                  key={index}
+                  data={items}
+                  x={index * itemWidth}
+                  width={itemWidth}
+                />
+              );
+            })}
+          </Group>
+          {/* 中部车厢 & 传送带 */}
+
+          {/* 机尾 */}
+          <MachineTail x={1333} />
+          {/* 机尾 */}
+        </Group>
+        {/* 机器 */}
       </Group>
-      {/* 机器 */}
-    </Group>
+    </MachineContext.Provider>
   );
 };
 
