@@ -1,0 +1,30 @@
+.screen {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('../../assets/dingxingji_screen_bg.png');
+  background-size: cover;
+  min-width: 1280px;
+  min-height: 720px;
+  z-index: 999;
+  background-color: #ffffff;
+  :global {
+    .chart-count-info {
+      position: absolute;
+      top: 50px;
+      left: 91px;
+      .total {
+        font-size: 40px;
+        color: #ffffff;
+        text-align: center;
+        line-height: 50px;
+      }
+      .desc {
+        font-size: 14px;
+        color: #ffffff;
+      }
+    }
+  }
+}

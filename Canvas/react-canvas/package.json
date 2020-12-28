@@ -28,6 +28,7 @@
     "echarts-for-react": "^2.0.16",
     "konva": "^7.2.2",
     "lint-staged": "^10.0.7",
+    "lodash": "^4.17.20",
     "prettier": "^1.19.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
