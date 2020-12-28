@@ -23,9 +23,15 @@ interface IMachineData {
   temperature: { current: number; setting: number };
 }
 
-const MachineContext = React.createContext<IMachineListItem | undefined>(
-  undefined,
-);
+const MachineContext = React.createContext<{
+  machine: IMachineListItem | undefined;
+  pos: number | undefined;
+  isVisible: boolean;
+}>({
+  machine: undefined,
+  pos: undefined,
+  isVisible: false,
+});
 
 /**
  * 车厢
@@ -36,24 +42,28 @@ const MachineBox: React.FC<{
 } & Konva.NodeConfig> = props => {
   const { data, width, ...resetNodeProps } = props;
   const fanRef = useRef<ImageInstance>(null);
-  const machine = useContext(MachineContext);
+  const { machine, isVisible } = useContext(MachineContext);
   const fanAnimInstanceRef = useRef<Konva.Animation>();
   const paddingHoz = useMemo(() => {
     return width * 0.1;
   }, [width]);
   const paddingVer = 13;
 
-  function startFanAnim() {
+  const stopFanAnim = () => {
+    if (fanAnimInstanceRef.current) {
+      fanAnimInstanceRef.current.stop();
+      fanAnimInstanceRef.current = undefined;
+    }
+  };
+
+  const startFanAnim = () => {
     if (!fanRef.current) {
       return;
     }
     const fan = fanRef.current;
     const angularSpeed = 200;
     // 清除上一次的动画
-    if (fanAnimInstanceRef.current) {
-      fanAnimInstanceRef.current.stop();
-      fanAnimInstanceRef.current = undefined;
-    }
+    stopFanAnim();
     // 开始新的动画
     fanAnimInstanceRef.current = new Konva.Animation(function(frame) {
       if (!frame) {
@@ -63,19 +73,18 @@ const MachineBox: React.FC<{
       fan.rotate(angleDiff);
     }, fan.getLayer());
     fanAnimInstanceRef.current.start();
-  }
+  };
 
   useEffect(() => {
-    if (machine && machine.status !== 'standby') {
+    if (machine && machine.status !== 'standby' && isVisible) {
       startFanAnim();
+    } else {
+      stopFanAnim();
     }
     return () => {
-      if (fanAnimInstanceRef.current) {
-        fanAnimInstanceRef.current.stop();
-        fanAnimInstanceRef.current = undefined;
-      }
+      stopFanAnim();
     };
-  }, [fanRef, machine]);
+  }, [fanRef, machine, isVisible]);
 
   return (
     <Group {...resetNodeProps}>
@@ -188,7 +197,7 @@ const MachineHead: React.FC<Konva.NodeConfig> = props => {
  */
 const MachineTail: React.FC<Konva.NodeConfig> = props => {
   const { ...resetNodeProps } = props;
-  const machine = useContext(MachineContext);
+  const { machine } = useContext(MachineContext);
 
   return (
     <Group {...resetNodeProps}>
@@ -226,7 +235,7 @@ const MachineTail: React.FC<Konva.NodeConfig> = props => {
  */
 const ConveyorBelt: React.FC<Konva.NodeConfig> = props => {
   const { width = 102, ...resetNodeProps } = props;
-  const machine = useContext(MachineContext);
+  const { machine, isVisible } = useContext(MachineContext);
   const beltAnimInstanceRef = useRef<Konva.Animation>();
   const beltWrapperRef = useRef<GroupInstance>(null);
   const processItemWidth = 25;
@@ -237,22 +246,29 @@ const ConveyorBelt: React.FC<Konva.NodeConfig> = props => {
     return width - processHozPadding * 2 - 2; /** -2 像素修正 */
   }, [width]);
 
+  const stopBeltAnim = () => {
+    if (beltAnimInstanceRef.current) {
+      beltAnimInstanceRef.current.stop();
+      beltAnimInstanceRef.current = undefined;
+    }
+  };
+
   const startBeltAnim = () => {
     if (!beltWrapperRef.current) {
       return;
     }
     const beltWrapper = beltWrapperRef.current;
     // 清除上次动画
-    if (beltAnimInstanceRef.current) {
-      beltAnimInstanceRef.current.stop();
-      beltAnimInstanceRef.current = undefined;
-    }
+    stopBeltAnim();
     // 开始新动画
     const moveSpeed = 1.8;
     let currentX = -beltAnimAreaWidth;
     beltAnimInstanceRef.current = new Konva.Animation(frame => {
       if (!frame) {
         return;
+      }
+      if (machine && machine.id === 2) {
+        console.log(frame.timeDiff);
       }
       beltWrapper.x(currentX);
       currentX += moveSpeed;
@@ -264,16 +280,15 @@ const ConveyorBelt: React.FC<Konva.NodeConfig> = props => {
   };
 
   useEffect(() => {
-    if (machine && machine.status !== 'standby') {
+    if (machine && machine.status !== 'standby' && isVisible) {
       startBeltAnim();
+    } else {
+      stopBeltAnim();
     }
     return () => {
-      if (beltAnimInstanceRef.current) {
-        beltAnimInstanceRef.current.stop();
-        beltAnimInstanceRef.current = undefined;
-      }
+      stopBeltAnim();
     };
-  }, [beltWrapperRef, machine]);
+  }, [beltWrapperRef, machine, isVisible]);
 
   const renderProcessItem = () => {
     const processItems: ReactElement[] = [];
@@ -360,7 +375,7 @@ const ConveyorBelt: React.FC<Konva.NodeConfig> = props => {
  */
 type SettingMachineProps = {
   machine: IMachineListItem;
-  pos: number;
+  pos: number | undefined;
 } & Konva.NodeConfig;
 
 const SettingMachine: React.FC<SettingMachineProps> = props => {
@@ -370,6 +385,10 @@ const SettingMachine: React.FC<SettingMachineProps> = props => {
   const { statusColor, statusText } = useMachineStatus(machine.status);
   const [machineData, setMachineData] = useState<IMachineData[]>();
   const moveToTargetPosAnimRef = useRef<Konva.Animation>();
+
+  const isVisible = useMemo<boolean>(() => {
+    return typeof pos === 'number' && pos <= ACTIVE_COUNT && pos > 0;
+  }, [pos]);
 
   const statusTextColor = useMemo(() => {
     switch (status) {
@@ -417,7 +436,10 @@ const SettingMachine: React.FC<SettingMachineProps> = props => {
     const moveSpeed = 20;
     const targetY = (pos - 1) * (306 + 10);
     if (pos <= ACTIVE_COUNT) {
-      moveToTargetPosAnimRef.current = new Konva.Animation(() => {
+      moveToTargetPosAnimRef.current = new Konva.Animation(frame => {
+        if (!frame) {
+          return;
+        }
         const currentY = settMachineWrapper.y();
         const nextY = currentY - moveSpeed;
         if (nextY <= targetY) {
@@ -429,7 +451,7 @@ const SettingMachine: React.FC<SettingMachineProps> = props => {
       }, settMachineWrapper.getLayer());
       moveToTargetPosAnimRef.current.start();
     } else {
-      settMachineWrapper.y(targetY);
+      settMachineWrapper.y(3 * (306 + 10));
     }
   };
 
@@ -443,6 +465,8 @@ const SettingMachine: React.FC<SettingMachineProps> = props => {
   useEffect(() => {
     if (typeof pos === 'number') {
       moveToTargetPos(pos);
+    } else {
+      stopMoveToTargetAnim();
     }
     return () => {
       stopMoveToTargetAnim();
@@ -454,13 +478,13 @@ const SettingMachine: React.FC<SettingMachineProps> = props => {
   }, [machine]);
 
   return (
-    <MachineContext.Provider value={machine}>
+    <MachineContext.Provider value={{ machine, pos, isVisible }}>
       <Group
         {...resetNodeProps}
         ref={settingMachineWrapperRef}
         width={1530}
         height={306}
-        y={(4 - 1) * (306 + 10)}
+        y={3 * (306 + 10)}
       >
         <Rect
           width={1530}

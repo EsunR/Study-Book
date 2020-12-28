@@ -6,7 +6,7 @@ import useMachineStatus from '../hook/useMachineStatus';
 import ScreenTheme from '../localfiles/theme';
 import ShippingMachineScreenContext from '../state/ShippingMachineScreenContext';
 import { IMachineListItem, MachineListViewProps } from './MachineListView';
-import { ACTIVE_COUNT } from '../localfiles';
+import { ACTIVE_COUNT, SCROLL_AWAIT } from '../localfiles';
 
 const MachineListItem: React.FC<{
   itemData: IMachineListItem;
@@ -72,9 +72,6 @@ type MachineListProps = {} & NodeConfig;
 
 const MachineList: React.FC<MachineListProps> = props => {
   const { ...resetNodeProps } = props;
-  // const [headIndex, setHeadIndex] = useState<number>(); // 处于 active 状态的第一个机器的索引
-  // const headIndexRef = useRef<number>();
-  // const [activeIds, setActiveIds] = useState<any[]>([]);
   const { dispatch, state } = useContext(ShippingMachineScreenContext);
   const { machineList, activeHeadId } = state;
   const palyTimerRef = useRef<any>();
@@ -110,7 +107,7 @@ const MachineList: React.FC<MachineListProps> = props => {
           payload: machineList[(activeHeadIndex + 1) % machineList.length].id,
         });
       }
-    }, 5000);
+    }, SCROLL_AWAIT);
   };
 
   const stopPlay = () => {

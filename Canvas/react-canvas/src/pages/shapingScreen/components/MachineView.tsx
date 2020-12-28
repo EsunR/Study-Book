@@ -27,14 +27,12 @@ const MachineView: React.FC<MachineViewProps> = props => {
   const { state } = useContext(ShippingMachineScreenContext);
   const { machineList, activeHeadId } = state;
 
-  // 5个索引：-1(隐藏)   0，1，2（显示）   3（隐藏）
-  // moving -> done 两个阶段
+  const activeHeadIndex = useMemo(() => {
+    return machineList.findIndex(machine => machine.id === activeHeadId);
+  }, [activeHeadId]);
 
   // posArr 记录了每个定型机在当前展示列表中所处的位置，是一个数组，数组与 machineList 的索引对应
   const posArr = useMemo<number[]>(() => {
-    const activeHeadIndex = machineList.findIndex(
-      machine => machine.id === activeHeadId,
-    );
     if (activeHeadIndex >= 0) {
       if (machineList.length > ACTIVE_COUNT) {
         // 超过 ACTIVE_COUNT 时逐个计算位置
@@ -57,11 +55,7 @@ const MachineView: React.FC<MachineViewProps> = props => {
     } else {
       return [];
     }
-  }, [activeHeadId, machineList]);
-
-  // useEffect(() => {
-  //   console.log(posArr);
-  // }, [posArr]);
+  }, [activeHeadIndex, machineList]);
 
   return (
     <Group
@@ -72,16 +66,15 @@ const MachineView: React.FC<MachineViewProps> = props => {
         }
       }}
     >
-      {machineList.map((machine, index) =>
-        machine ? (
+      {machineList.map((machine, index) => {
+        return machine ? (
           <SettingMachine
             key={machine.id}
             machine={machine}
-            // y={index * (306 + 10)}
             pos={posArr[index]}
           />
-        ) : null,
-      )}
+        ) : null;
+      })}
     </Group>
   );
 };
