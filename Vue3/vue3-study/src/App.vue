@@ -1,30 +1,53 @@
 <template>
-  <div id="nav">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
+  <div id="app-wrapper">
+    <div id="app-nav">
+      <router-link to="/demo01">Demo01: setup() 和 ref()</router-link>
+      <router-link to="/demo02">Demo02: 用 reactive 优化程序</router-link>
+    </div>
+    <div id="app-content">
+      <router-view />
+    </div>
   </div>
-  <router-view />
 </template>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<style lang="scss" scoped>
+#app-wrapper {
+  display: flex;
+  height: 100%;
 
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
+  #app-nav {
+    width: 200px;
+    border-right: 1px solid rgba($color: #000000, $alpha: 0.2);
+    min-height: 100%;
+    padding: 0 10px;
+    a {
+      font-weight: bold;
+      color: #2c3e50;
+      display: block;
+      margin: 10px 0;
+      &.router-link-exact-active {
+        color: #42b983;
+      }
     }
   }
+
+  #app-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+  }
+}
+</style>
+
+<style lang="scss">
+* {
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body,
+#app {
+  height: 100%;
 }
 </style>
