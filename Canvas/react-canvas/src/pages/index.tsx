@@ -3,7 +3,7 @@ import styles from './index.less';
 import { Link } from 'umi';
 
 export default () => {
-  const menus = ['binmade'];
+  const menus = ['konva-study'];
 
   return (
     <div className={styles.home}>

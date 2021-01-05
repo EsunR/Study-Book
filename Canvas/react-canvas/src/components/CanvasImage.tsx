@@ -21,7 +21,7 @@ const CanvasImage = React.forwardRef<ImageInstance, CanvasImageProps>((props, re
 
   useEffect(() => {
     loadImage();
-  }, []);
+  }, [source]);
 
   return <Image ref={ref} image={headerBgImg} {...resetImageProps} />;
 });
