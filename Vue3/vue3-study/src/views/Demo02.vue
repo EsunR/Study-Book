@@ -34,7 +34,6 @@ export default {
       },
     });
     const refData = toRefs(data);
-
     return {
       ...refData,
     };
