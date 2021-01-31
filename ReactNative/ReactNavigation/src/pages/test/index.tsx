@@ -45,6 +45,12 @@ const TestHome = (props) => {
             navigation.navigate('Login');
           }}
         />
+        <Button
+          title="WebViewTest"
+          onPress={() => {
+            navigation.navigate('WebViewTest');
+          }}
+        />
       </View>
     </View>
   );

@@ -17,6 +17,7 @@ import RNBaiduMtj from 'react-native-baidu-mtj';
 import Camera from '@/pages/test/camera';
 import Photo from '@/pages/test/photo';
 import Login from '@/pages/test/login';
+import WebViewTest from '@/pages/test/webview';
 
 const App = () => {
   const Stack = createStackNavigator();
@@ -63,6 +64,7 @@ const App = () => {
       <Stack.Screen name="Camera" component={Camera} />
       <Stack.Screen name="Photo" component={Photo} />
       <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen name="WebViewTest" component={WebViewTest} />
     </Stack.Navigator>
   );
 

@@ -1,17 +1,19 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
-import Demo01 from "../views/Demo01.vue";
-import Demo02 from "../views/Demo02.vue";
+import StudyIndex from "@/pages/study/index.vue";
+import HomePage from "@/pages/home.vue";
+import studyRoutes from "./study";
 
 const routes: Array<RouteRecordRaw> = [
   {
-    path: "/demo01",
-    name: "Demo01",
-    component: Demo01,
+    path: "/",
+    name: "home",
+    component: HomePage,
   },
   {
-    path: "/demo02",
-    name: "Demo02",
-    component: Demo02,
+    path: "/study",
+    name: "studyIndex",
+    component: StudyIndex,
+    children: studyRoutes,
   },
 ];
 
