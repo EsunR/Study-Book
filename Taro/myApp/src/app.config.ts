@@ -1,5 +1,13 @@
 export default {
-  pages: ["pages/index/index", "pages/news/index", "pages/user/index"],
+  pages: [
+    // 首页
+    "pages/index/index",
+    "pages/index/appleWallet/index",
+    // 新闻
+    "pages/news/index",
+    // 用户页
+    "pages/user/index",
+  ],
   tabBar: {
     list: [
       {
