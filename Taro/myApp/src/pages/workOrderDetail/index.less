@@ -1,0 +1,273 @@
+@product_card_content_height: 280px;
+@product_card_detail_content_height: 660px; // 生产卡展开后详情区域的高度
+@product_card_title_height: 70px;
+@pick_card_time: 0.5s; // 卡片滑动到顶部的时间
+@chart_slide_to_center_time: 0.7s; // 图标滑动到中央、卡片展开的时间
+
+.container {
+  :global {
+    .scroll-content-wrapper {
+      margin: 20px 0;
+    }
+  }
+}
+
+.productOrder {
+  border-radius: 24px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  margin: 0 30px;
+  margin-top: -(@product_card_content_height + @product_card_title_height);
+  margin-bottom: 70px;
+  position: relative;
+  transition: all ease 0.5s;
+  &:first-child {
+    margin-top: 0;
+  }
+  &.closed {
+    margin-bottom: 0px;
+    &:first-child {
+      margin-top: 0px;
+    }
+  }
+  :global {
+    .desc-wrapper {
+      color: #ffffff;
+      padding: 24px 30px;
+      // 深色字体
+      &.dark-text {
+        color: #333333;
+        .desc .detail-item {
+          color: #333333;
+        }
+      }
+      .order-title {
+        display: flex;
+        opacity: 0.8;
+        font-weight: 500;
+      }
+      .desc {
+        margin: 30px 0;
+      }
+    }
+    .product-card-wrapper {
+    }
+  }
+}
+
+.productCard {
+  border-radius: 24px;
+  box-shadow: 0px -4px 24px 0px rgba(0, 0, 0, 0.1);
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  margin-top: -@product_card_content_height;
+  position: relative;
+  transition: all ease 0.5s;
+  &:first-child {
+    margin-top: 0;
+  }
+  &.closed {
+    margin-top: -(@product_card_title_height + @product_card_content_height);
+    box-shadow: 0px -4px 5px 0px rgba(0, 0, 0, 0.05);
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+  &.picked {
+  }
+  :global {
+    .process-info {
+      padding: 24px 30px;
+      padding-top: 18px;
+      border-bottom: 2px dashed rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+      transform: translateY(6px);
+      display: flex;
+      align-items: center;
+      .at-progress__outer-inner {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+      // 深色文字
+      &.dark-text {
+        color: #333333;
+        border-bottom-color: rgba(0, 0, 0, 0.2);
+        .at-progress__outer-inner {
+          background-color: rgba(4, 113, 253, 0.2);
+        }
+      }
+    }
+    .content {
+      // 图表区域
+      .chart-desc-area {
+        height: @product_card_content_height;
+        padding: 24px 30px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        // transition: all ease @chart_slide_to_center_time;
+        // transition-delay: @pick_card_time;
+        &.picked {
+          height: @product_card_content_height + 140px;
+        }
+        .chart-wrapper {
+          position: absolute;
+          // transition: all ease @chart_slide_to_center_time;
+          // transition-delay: @pick_card_time;
+          // &.centered {
+          //   transform: translateX(0) !important;
+          // }
+        }
+        .description {
+          transition: all ease (@chart_slide_to_center_time - 0.4s);
+          &.hide {
+            opacity: 0;
+            transition-delay: @pick_card_time + 0.4s;
+          }
+        }
+      }
+      // 展开后的详情
+      .work-card-detail-area {
+        padding: 0 30px;
+        transition: all ease @chart_slide_to_center_time;
+        transition-delay: @pick_card_time;
+        height: 0;
+        overflow: hidden;
+        &.expanded {
+          height: @product_card_detail_content_height;
+        }
+        .work-card-detail-desc {
+          .item-title {
+            font-size: 28px;
+          }
+          .item-content {
+            font-size: 50px;
+          }
+          .unit {
+            font-size: 26px;
+          }
+        }
+        .process-wrapper {
+          margin: 60px -30px 0;
+        }
+      }
+      // 深色文字
+      &.dark-text {
+        .chart-desc-area .description {
+          color: #333333;
+        }
+        .work-card-detail-desc {
+          color: #333333;
+        }
+      }
+    }
+  }
+}
+
+.orderTypeBadge {
+  :global {
+  }
+}
+
+.descriptionRow {
+  display: flex;
+  justify-content: space-around;
+  color: #ffffff;
+  :global {
+    .detail-item {
+      .item-title {
+        opacity: 0.6;
+        font-size: 26px;
+        font-weight: 500;
+      }
+      .item-content {
+        margin-top: 10px;
+        font-weight: 500;
+        font-size: 36px;
+        .unit {
+          font-size: 26px;
+        }
+      }
+    }
+  }
+}
+
+.process {
+  display: flex;
+  color: #ffffff;
+  &.darkText {
+    color: #333333;
+    :global {
+      .process-item {
+        .ball {
+          background-color: rgba(4, 113, 253, 0.1);
+        }
+        &.active {
+          .ball {
+            background-color: #0471fd;
+            color: #ffffff;
+          }
+          .outer-ball {
+            background-color: rgba(4, 113, 253, 0.1);
+          }
+        }
+      }
+    }
+  }
+  :global {
+    .icon-container {
+      mask-image: linear-gradient(90deg, transparent, #000000 50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+    }
+    .process-item {
+      flex: 2;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      .ball {
+        width: 120px;
+        height: 120px;
+        border-radius: 120px;
+        background-color: rgba(255, 255, 255, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+      }
+      .process-desc {
+        position: absolute;
+        top: 150px;
+        text-align: center;
+        font-size: 32px;
+        width: 190px;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0.8;
+        line-height: 1.5;
+        .time {
+          font-size: 28px;
+        }
+      }
+      &.active {
+        flex: 3;
+        .ball {
+          background-color: #fff;
+          color: #000000;
+        }
+        .outer-ball {
+          width: 160px;
+          height: 160px;
+          border-radius: 160px;
+          background-color: rgba(255, 255, 255, 0.3);
+          position: absolute;
+          top: -20px;
+        }
+        .process-desc {
+          opacity: 1;
+          font-weight: bold;
+        }
+      }
+    }
+  }
+}

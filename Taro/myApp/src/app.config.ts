@@ -7,27 +7,29 @@ export default {
     "pages/news/index",
     // 用户页
     "pages/user/index",
+    "pages/test/index",
+    "pages/workOrderDetail/index"
   ],
   tabBar: {
     list: [
       {
         pagePath: "pages/index/index",
-        text: "首页",
+        text: "首页"
       },
       {
         pagePath: "pages/news/index",
-        text: "新闻",
+        text: "新闻"
       },
       {
         pagePath: "pages/user/index",
-        text: "用户",
-      },
-    ],
+        text: "用户"
+      }
+    ]
   },
   window: {
     backgroundTextStyle: "light",
     navigationBarBackgroundColor: "#fff",
     navigationBarTitleText: "WeChat",
-    navigationBarTextStyle: "black",
-  },
+    navigationBarTextStyle: "black"
+  }
 };
