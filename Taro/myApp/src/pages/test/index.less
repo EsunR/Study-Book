@@ -1,0 +1,13 @@
+.boxWrapper {
+  :global {
+    .box {
+      width: 100px;
+      height: 100px;
+      background-color: pink;
+      transition: all ease 1s;
+      &.open {
+        transform: translateX(100px);
+      }
+    }
+  }
+}
