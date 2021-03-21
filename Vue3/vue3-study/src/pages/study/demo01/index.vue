@@ -1,18 +1,20 @@
 <template>
   <div>
-    <h2>欢迎光临红浪漫洗浴中心</h2>
-    <div>请选择一位美女为你服务</div>
+    <div>
+      <h2>欢迎光临红浪漫洗浴中心</h2>
+      <div>请选择一位美女为你服务</div>
+    </div>
+    <div>
+      <button
+        v-for="(item, index) in girls"
+        v-bind:key="index"
+        @click="selectGirlFun(index)"
+      >
+        {{ index }} : {{ item }}
+      </button>
+    </div>
+    <div>你选择了【{{ selectGirl }}】为你服务</div>
   </div>
-  <div>
-    <button
-      v-for="(item, index) in girls"
-      v-bind:key="index"
-      @click="selectGirlFun(index)"
-    >
-      {{ index }} : {{ item }}
-    </button>
-  </div>
-  <div>你选择了【{{ selectGirl }}】为你服务</div>
 </template>
 
 <script lang="ts">

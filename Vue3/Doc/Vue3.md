@@ -85,6 +85,10 @@ Vue.createApp(Counter).mount('#counter')
 
 ## 1.3 setup
 
+> https://vue3js.cn/docs/zh/api/composition-api.html#setup
+
+一个组件选项，在创建组件**之前**执行，一旦 `props` 被解析，并作为组合式 API 的入口点
+
 ### 1.3.1 ref
 
 在创建 Vue3 组件实例时新增了一个 `setup` 属性，该属性应当传入一个方法，通过该属性，可以简化我们之前需要同时编写 `data` 与 `methods` 属性来执行某些操作。
@@ -179,7 +183,7 @@ return {
 }
 ```
 
-那么得到的数据是将是一组不可变的，原因是因为 `reactive` 返回的是一个，而展运算符会破坏这种结构。
+那么得到的数据是将是一组不可变的，原因是因为 `reactive` 返回的是一个响应式对象，而展运算符会破坏这种结构。
 
 这时可以使用 [toRefs](https://vue3js.cn/docs/zh/api/refs-api.html#torefs)。`toRefs` 可以用来为源响应式对象上的 property 性创建一个 ref，然后可以将 ref 传递出去，从而保持对其源 property 的响应式连接。
 
@@ -206,3 +210,145 @@ const data = reactive({
 
 return data
 ```
+
+## 1.4 生命周期
+
+### 1.4.1 在 setup 中使用生命周期
+
+vue2 中有以下生命周期：
+
+![](https://cn.vuejs.org/images/lifecycle.png)
+
+在 vue3 中，如果使用了 `setup()`，那么 `setup()` 会在 `beforeCreate` 与 `created` 之前执行。
+
+如果要在 `setup()` 中使用生命周期可以从 vue 中导出 `onXXX` 的方法，在 `setup()` 中调用：
+
+```js
+import { onBeforeMount, onMounted, reactive, toRefs } from "vue";
+
+export default {
+  name: "Demo02",
+  setup() {
+    const data: DataProps = reactive({
+      // ... ...
+    });
+
+    // Life Event
+    onBeforeMount(() => {
+      console.log("onBeforeMount");
+    });
+
+    return data;
+  },
+};
+```
+
+### 1.4.2 Vue3 的生命周期执行顺序
+
+在 Vue3 中，Vue2 老的生命周期钩子函数仍然可以使用，但是他们都稍晚于 Vue2 中在 `setup()` 中执行的生命周期钩子：
+
+```js
+export default {
+  name: "Demo02",
+  setup() {
+    console.log("setup()");
+    
+    const data: DataProps = reactive({
+      // ... ...
+    });
+
+    // Life Event
+    onBeforeMount(() => {
+      console.log("onBeforeMount");
+    });
+
+    onMounted(() => {
+      console.log("onMounted");
+    });
+
+    return data;
+  },
+  beforeCreate() {
+    console.log("beforeCreate");
+  },
+  beforeMount() {
+    console.log("beforeMount");
+  },
+  mounted() {
+    console.log("mounted");
+  },
+};
+```
+
+输出：
+
+```
+setup()
+beforeCreate
+created
+onBeforeMount
+beforeMount
+onMounted
+mounted
+```
+
+> Vue3 中没有 `onBeforeCreate()` 与 `beforeCreated` 生命周期钩子
+
+
+### 1.4.3 新增的生命周期函数
+
+Vue3 新增了 `onRenderTracked` 与 `onRenderTriggered` 生命周期钩子，可以用于调试。
+
+
+`onRenderTracked()` 状态跟踪函数，会跟踪每个值的变动，其内部传递的回调函数存在一个 `event` 参数，可以获取到监听结果：
+
+```js
+setup() {
+  const data: DataProps = reactive({
+    girls: ["大脚", "刘英", "晓红"],
+    selectGirl: "",
+    selectGirlFun: (index: number) => {
+      data.selectGirl = data.girls[index];
+    },
+  });
+  const refData = toRefs(data);
+
+  onRenderTracked(e => {
+    console.log(e);
+  });
+
+  return {
+    ...refData,
+  };
+},
+```
+
+![](https://i.loli.net/2021/03/21/wLlZGVzKJd96q4n.png)
+
+`onRenderTriggered()` 状态触发函数，当组件内的值改变时，会触发该函数，对外传递的 event 会显示改变值的索引以及 oldValue 与 newValue：
+
+```js
+setup() {
+  const data: DataProps = reactive({
+    girls: ["大脚", "刘英", "晓红"],
+    selectGirl: "",
+    selectGirlFun: (index: number) => {
+      data.selectGirl = data.girls[index];
+    },
+  });
+  const refData = toRefs(data);
+
+  // Life Circle Hook
+  onRenderTriggered(e => {
+    console.log(e);
+  });
+
+  return {
+    ...refData,
+  };
+},
+```
+
+当 selectGirl 发生改变时：
+
+![](https://i.loli.net/2021/03/21/Xy72tzMPka6rV9o.png)

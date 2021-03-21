@@ -14,7 +14,8 @@
 
 html,
 body,
-#app {
+#app,
+#app-wrapper {
   height: 100%;
 }
 </style>
