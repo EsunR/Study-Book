@@ -3,6 +3,8 @@
     <div id="study-nav">
       <router-link to="/demo01">Demo01: setup() 和 ref()</router-link>
       <router-link to="/demo02">Demo02: 用 reactive 优化程序</router-link>
+      <router-link to="/demo03">Demo03: 时间显示模块</router-link>
+      <router-link to="/demo04">Demo04: 随机挑选人名</router-link>
     </div>
     <div id="study-content">
       <router-view />

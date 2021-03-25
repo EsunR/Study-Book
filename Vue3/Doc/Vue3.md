@@ -1,6 +1,4 @@
-# 1. Vue3 起步
-
-## 1.1 Vue3 新特性
+# 1. Vue3 新特性
 
 Vue3 的一些特性：
 
@@ -16,7 +14,7 @@ Vue3 的一些特性：
   - Suspense 解决异步组件加载问题
 - 更好的 Typescript 支持
 
-## 1.2 脚手架工具
+# 2 脚手架工具
 
 使用 vue-cli 创建项目后，vscode 的 prettier 可能与 eslint 存在冲突，需要手动设置。具体表现在使用 ctrl+shift+f 进行格式化时，会采用全局 prettier 规则，而在 ctrl+s 时会采用项目的 eslint 规则，对文件进行格式化。
 
@@ -44,7 +42,7 @@ Vue3 的一些特性：
   };
 ```
 
-## 1.2 创建一个 Vue 实例
+# 3. 创建一个 Vue 实例
 
 在 Vue3 中，创建一个实例与 Vue2 有着很大的差别。在 Vue2 中创建实例我们通常使用 new 关键字，来直接创建一个 Vue 实例：
 
@@ -83,17 +81,18 @@ const Counter = {
 Vue.createApp(Counter).mount('#counter')
 ```
 
-## 1.3 setup
+# 4. setup
 
 > https://vue3js.cn/docs/zh/api/composition-api.html#setup
 
 一个组件选项，在创建组件**之前**执行，一旦 `props` 被解析，并作为组合式 API 的入口点
 
-### 1.3.1 ref
+## 4.1 ref
 
 在创建 Vue3 组件实例时新增了一个 `setup` 属性，该属性应当传入一个方法，通过该属性，可以简化我们之前需要同时编写 `data` 与 `methods` 属性来执行某些操作。
 
 同时也新增了 [ref](https://vue3js.cn/docs/zh/api/refs-api.html#ref) 方法，接受一个内部值并返回一个响应式且可变的 ref 对象。创建的 ref 对象必须使用 `refObj.value` 的方式去写入值：
+
 
 ```vue
 <template>
@@ -121,7 +120,7 @@ export default defineComponent({
     const girls = ref(["大脚", "刘英", "晓红"]);
     const selectGirl = ref("");
     
-    // selectGirlFun 可以直接在 template 中被绑定调用
+    // 由于函数无需转为 “响应式” 对象，因此无需使用 ref 进行转化
     const selectGirlFun = (index: number) => {
       selectGirl.value = girls.value[index];
     };
@@ -139,7 +138,7 @@ export default defineComponent({
 > 从这里可以看出 vue3 与 ReactHook 有一定的相似之处，`ref` 创建值相当于 ReactHook 中使用 `useState` 创建 State 对象；
 > 同时在 `setup` 中直接编写的函数方法可以在 template 中直接调用，也与 ReactHook 中写入编写的方法可以直接在 jsx 中调用有相似之处。
 
-### 1.3.2 reactive 
+## 4.2 reactive 
 
 在上面的代码中，每次创建值都需要使用 `ref` 同时写入值时也需要使用 `refObj.value` 来改写；为了避免上面的繁琐操作，可以使用 [reactive](https://vue3js.cn/docs/zh/api/basic-reactivity.html#reactive) 来简化操作。 
 
@@ -211,9 +210,9 @@ const data = reactive({
 return data
 ```
 
-## 1.4 生命周期
+# 5 生命周期
 
-### 1.4.1 在 setup 中使用生命周期
+## 5.1 在 setup 中使用生命周期
 
 vue2 中有以下生命周期：
 
@@ -243,7 +242,7 @@ export default {
 };
 ```
 
-### 1.4.2 Vue3 的生命周期执行顺序
+## 5.2 Vue3 的生命周期执行顺序
 
 在 Vue3 中，Vue2 老的生命周期钩子函数仍然可以使用，但是他们都稍晚于 Vue2 中在 `setup()` 中执行的生命周期钩子：
 
@@ -295,7 +294,7 @@ mounted
 > Vue3 中没有 `onBeforeCreate()` 与 `beforeCreated` 生命周期钩子
 
 
-### 1.4.3 新增的生命周期函数
+## 5.3 新增的生命周期函数
 
 Vue3 新增了 `onRenderTracked` 与 `onRenderTriggered` 生命周期钩子，可以用于调试。
 
@@ -352,3 +351,200 @@ setup() {
 当 selectGirl 发生改变时：
 
 ![](https://i.loli.net/2021/03/21/Xy72tzMPka6rV9o.png)
+
+# 6. Watch 监听
+
+在 Vue3 中，`setup()` 函数内可以使用 `watch()` 方法来设置监听：
+
+```js
+export default {
+  name: "Demo02",
+  setup() {
+    const overText = ref("红浪漫");
+    const overAction = () => {
+      overText.value = "点餐完成|" + overText.value;
+    };
+
+    watch(overText, (newValue, oldValue) => {
+      console.log(`new ----> ${newValue}`);
+      console.log(`old ----> ${oldValue}`);
+      document.title = newValue;
+    });
+
+    return {
+      overText,
+      overAction,
+    };
+  },
+}
+```
+
+`watch` 方法的第一个参数可以传入一个 Ref 对象，也可以传入一个以来数组。但是要注意的是，**监听的对象只能是 getter/effect 函数、ref 对象、reactive 对象或者一个数组**。如果我们想要监听 `reactive` 中转化的值的话，由于其进行过转化，取值时其就是一个值类型，因此必须将其转化为一个 “getter 函数”，如 `() => variable`，举例来说：
+
+```js
+setup() {
+  const data: DataProps = reactive({
+    girls: ["大脚", "刘英", "晓红"],
+    selectGirl: "",
+  });
+  const refData = toRefs(data);
+  const overText = ref("红浪漫");
+
+  // ... ...
+
+  // 监听 overText 以及 selectGirl 
+  // overText => Ref<string> | data.selectGirl => string
+  watch([overText, () => data.selectGirl], (newValue, oldValue) => {
+    console.log("newValue: ", newValue);
+    console.log("oldValue: ", oldValue);
+    document.title = newValue[0];
+  });
+
+  return {
+    ...refData,
+    overText,
+    overAction,
+  };
+},
+```
+
+Vue2 的 watch 用法同样适用于 Vue3 且无需任何特殊处理：
+
+```js
+export default {
+  name: "Demo02",
+  setup() {
+    const data: DataProps = reactive({
+      girls: ["大脚", "刘英", "晓红"],
+      selectGirl: "",
+    });
+    const refData = toRefs(data);
+    const overText = ref("红浪漫");
+
+    watch([overText, () => data.selectGirl], (newValue, oldValue) => {
+      console.log("newValue: ", newValue);
+      console.log("oldValue: ", oldValue);
+      document.title = newValue[0];
+    });
+
+    return {
+      ...refData,
+      overText,
+    };
+  },
+
+  // Vue2 监听器可以正常使用
+  watch: {
+    overText(newVal: any) {
+      console.log("newVal: ", newVal);
+    },
+    selectGirl(newVal: any) {
+      console.log("newVal: ", newVal);
+    },
+  },
+};
+```
+
+# 6. 自定义 hook
+
+与 React 相似的，Vue3 中也可以使用自定义 Hook，将逻辑代码剥离出组件。
+
+以下的示例是演示如何抽离出一个获取当前时间的组件：
+
+```tsx
+// useNowTime.ts
+import { ref } from "vue";
+
+const nowTime = ref("00:00:00");
+
+const getNowTime = () => {
+  const now = new Date();
+  const hour = now.getHours();
+  const min = now.getMinutes();
+  const sec = now.getSeconds();
+  nowTime.value = `${hour}:${min}:${sec}`;
+  setTimeout(getNowTime, 1000);
+};
+
+export { nowTime, getNowTime };
+```
+
+```vue
+// Demo03.vue
+<template>
+  <div>
+    <div>{{ nowTime }}</div>
+    <button @click="getNowTime">获取时间</button>
+  </div>
+</template>
+
+<script lang="ts">
+import { nowTime, getNowTime } from "./hooks/useNowTime";
+
+export default {
+  name: "Demo03",
+  setup() {
+    return {
+      nowTime,
+      getNowTime,
+    };
+  },
+};
+</script>
+
+<style lang="scss" scoped></style>
+```
+
+![](https://i.loli.net/2021/03/23/OhYQdLwMk3iTl6K.png)
+
+当然，我们完全可以模仿 react hook 的写法，将 useHook 文件导出一个方法：
+
+```ts
+// useNowTime.ts
+import { ref } from "vue";
+
+const useNowTime = () => {
+  const nowTime = ref("00:00:00");
+
+  const getNowTime = () => {
+    const now = new Date();
+    const hour = now.getHours();
+    const min = now.getMinutes();
+    const sec = now.getSeconds();
+    nowTime.value = `${hour}:${min}:${sec}`;
+    setTimeout(getNowTime, 1000);
+  };
+
+  return { nowTime, getNowTime };
+};
+
+export default useNowTime;
+```
+
+```vue
+// Demo03.vue
+<template>
+  <div>
+    <div>{{ nowTime }}</div>
+    <button @click="getNowTime">获取时间</button>
+  </div>
+</template>
+
+<script lang="ts">
+import useNowTime from "./hooks/useNowTime";
+
+export default {
+  name: "Demo03",
+  setup() {
+    const { nowTime, getNowTime } = useNowTime();
+
+    return {
+      nowTime,
+      getNowTime,
+    };
+  },
+};
+</script>
+
+<style lang="scss" scoped></style>
+```

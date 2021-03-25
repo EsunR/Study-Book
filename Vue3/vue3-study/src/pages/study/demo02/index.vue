@@ -14,16 +14,23 @@
       </button>
     </div>
     <div>你选择了【{{ selectGirl }}】为你服务</div>
+
+    <button @click="overAction">
+      点餐完成
+    </button>
+    <div>{{ overText }}</div>
   </div>
 </template>
 
 <script lang="ts">
 import {
-  onBeforeMount,
-  onMounted,
-  onRenderTriggered,
+  // onBeforeMount,
+  // onMounted,
+  // onRenderTriggered,
   reactive,
+  ref,
   toRefs,
+  watch,
 } from "vue";
 interface DataProps {
   girls: string[];
@@ -42,24 +49,44 @@ export default {
       },
     });
     const refData = toRefs(data);
-    console.log("setup()");
-
+    // console.log("setup()");
     // Life Circle Hook
-    onBeforeMount(() => {
-      console.log("onBeforeMount");
-    });
+    // onBeforeMount(() => {
+    //   console.log("onBeforeMount");
+    // });
 
-    onMounted(() => {
-      console.log("onMounted");
-    });
+    // onMounted(() => {
+    //   console.log("onMounted");
+    // });
 
-    onRenderTriggered(e => {
-      console.log(e);
+    // onRenderTriggered(e => {
+    //   console.log(e);
+    // });
+    const overText = ref("红浪漫");
+    const overAction = () => {
+      overText.value = "点餐完成|" + overText.value;
+    };
+
+    watch([overText, () => data.selectGirl], (newValue, oldValue) => {
+      console.log("newValue: ", newValue);
+      console.log("oldValue: ", oldValue);
+      document.title = newValue[0];
     });
 
     return {
       ...refData,
+      overText,
+      overAction,
     };
+  },
+
+  watch: {
+    overText(newVal: any) {
+      console.log("newVal: ", newVal);
+    },
+    selectGirl(newVal: any) {
+      console.log("newVal: ", newVal);
+    },
   },
   // beforeCreate() {
   //   console.log("beforeCreate");
