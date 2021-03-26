@@ -4,7 +4,10 @@
       <router-link to="/demo01">Demo01: setup() 和 ref()</router-link>
       <router-link to="/demo02">Demo02: 用 reactive 优化程序</router-link>
       <router-link to="/demo03">Demo03: 时间显示模块</router-link>
-      <router-link to="/demo04">Demo04: 随机挑选人名</router-link>
+      <router-link to="/demo04">Demo04: 随机挑选老婆</router-link>
+      <router-link to="/demo05">Demo05: Teleport 瞬间移动组件</router-link>
+      <router-link to="/demo06">Demo06: Suspense 异步组件</router-link>
+      <router-link to="/demo07">Demo07: 随机挑选老婆(Suspense 版) </router-link>
     </div>
     <div id="study-content">
       <router-view />

@@ -548,3 +548,122 @@ export default {
 
 <style lang="scss" scoped></style>
 ```
+
+# 7. Teleport
+
+Teleport 被称为瞬间移动组件，是 Vue3 新增的组件。它可以更便捷的将组件的 Dom 节点挂载到目标节点中，这对于我们写一些全局组件非常有用，比如 Alert、Modal、Notification 组件。
+
+以 Modal 组件为例，我们会将 Modal 组件的 Wrapper 设置为相对定位，让其覆盖整个屏幕，写法如下：
+
+```vue
+// Modal.vue
+<template>
+  <div class="modal">
+    <div class="modal-content center">
+      <h2>EsunR.xyz</h2>
+    </div>
+  </div>
+</template>
+
+<script lang="ts">
+export default {
+  name: "",
+  setup() {
+    return {};
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+.modal {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.5);
+  left: 0;
+  top: 0;
+  .center {
+    width: 200px;
+    height: 200px;
+    border: 2px solid #000000;
+    background: #ffffff;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    position: absolute;
+  }
+}
+</style>
+```
+
+然而当页面逐渐复杂，我们在页面中使用这个组件时，组件会被挂载到调用的位置时，如果父级 Dom 节点的样式设置了定位，那么就会对 Modal 组件的定位产生影响，如：
+
+```vue
+<template>
+  <div id="Demo05">
+    <Modal />
+    <h1>Demo05</h1>
+    <p>
+      Vue 鼓励我们通过将 UI 和相关行为封装到组件中来构建
+      UI。我们可以将它们嵌套在另一个内部，以构建一个组成应用程序 UI 的树。
+    </p>
+    <p>
+      然而，有时组件模板的一部分逻辑上属于该组件，而从技术角度来看，最好将模板的这一部分移动到
+      DOM 中 Vue app 之外的其他位置。
+    </p>
+    <p>
+      一个常见的场景是创建一个包含全屏模式的组件。在大多数情况下，你希望模态的逻辑存在于组件中，但是模态的定位很快就很难通过
+      CSS 来解决，或者需要更改组件组合。
+    </p>
+  </div>
+</template>
+
+<script lang="ts">
+import Modal from "./components/Modal.vue";
+
+export default {
+  name: "Demo05",
+  components: {
+    Modal,
+  },
+  setup() {
+    return {};
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+#Demo05 {
+  position: relative;
+}
+</style>
+```
+
+此时页面会表现为：
+
+![](https://i.loli.net/2021/03/27/5vptRrBD964hTZw.png)
+
+Dom 节点结构为：
+
+![](https://i.loli.net/2021/03/27/NwRWSunJ9mlc37B.png)
+
+要解决这个问题，我们就必须要想办法把 Modal 组件移出去。在 Vue2 中，我们可以通过[渲染函数](https://cn.vuejs.org/v2/guide/render-function.html)来将渲染内容指定渲染在 HTML 的任意目标位置，其核心是在生成虚拟 DOM 后对其进行 `targetDom.appendChild(virtualDom)` 操作。
+
+在 Vue3 中，我们可以直接使用 `Teleport` 组件来将组件渲染到页面的指定位置，因此我们只需要更改我们的 Modal 组件为：
+
+```vue
+<template>
+  <teleport to="body">
+    <div class="modal">
+      <div class="modal-content center">
+        <h2>EsunR.xyz</h2>
+      </div>
+    </div>
+  </teleport>
+</template>
+```
+
+此时 Modal 组件表现完全正常，因为其直接挂载到了 body 节点中：
+
+![](https://i.loli.net/2021/03/27/SRDH235GbPurwn7.png)
+
