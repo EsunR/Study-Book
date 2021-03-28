@@ -1,0 +1,17 @@
+{
+  "devDependencies": {
+    "@babel/core": "^7.13.13",
+    "@babel/plugin-transform-react-jsx": "^7.13.12",
+    "@babel/preset-env": "^7.13.12",
+    "parcel-bundler": "^1.12.5"
+  },
+  "name": "react-sample",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "parcel index.html",
+    "build": "parcel build index.html"
+  },
+  "dependencies": {}
+}
