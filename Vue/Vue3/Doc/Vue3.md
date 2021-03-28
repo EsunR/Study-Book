@@ -667,3 +667,92 @@ Dom 节点结构为：
 
 ![](https://i.loli.net/2021/03/27/SRDH235GbPurwn7.png)
 
+# 8. Suspense
+
+`Suspense` 是 vue3 中新增的组件，类似于 `keep-alive` 不需要任何的引入，可以直接进行使用。自带两个 `slot` 分别为 `default、fallback`。顾名思义，当要加载的组件不满足状态时,`Suspense` 将回退到 `fallback`状态一直到加载的组件满足条件，才会进行渲染。
+
+在官方示例中，`Suspense` 与 [异步组件（defineAsyncComponent）](https://vue3js.cn/docs/zh/guide/component-dynamic-async.html#%E5%BC%82%E6%AD%A5%E7%BB%84%E4%BB%B6) 配合使用的。当异步组件加载时可以为用户显示一个 loading 界面，如：
+
+```vue
+<template>
+  <div>
+    <Suspense>
+      <template #default>
+        <AsyncComponent />
+      </template>
+      <template #fallback>
+        <h2>Loading... ...</h2>
+      </template>
+    </Suspense>
+  </div>
+</template>
+```
+
+其实除了使用 `defineAsyncComponent` 声明的异步组件外，组件的 `setup()` 函数如果是一个 async 函数的话，该组件也属于一个异步组件，也可以使用 `Suspense` 来显示组件：
+
+```vue
+// AsyncShow.vue
+// 获取图片的异步组件
+<template>
+  <div class="async-show">
+    <h2>Result: {{ result }}</h2>
+    <img :src="result && result.imgurl" alt="" width="600" />
+  </div>
+</template>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+import axios from "axios";
+
+export default defineComponent({
+  name: "AsyncShow",
+  async setup() {
+    const rawData = await axios.get("/api/api.php?return=json");
+    return {
+      result: rawData.data,
+    };
+  },
+});
+</script>
+
+<style lang="scss" scoped></style>
+```
+
+```vue
+// index.vue
+// 引入 AsyncShow.vue
+<template>
+  <div id="Demo06">
+    <h1>Demo06</h1>
+    <Suspense>
+      <template #default>
+        <AsyncShow />
+      </template>
+      <template #fallback>
+        <h2>Loading... ...</h2>
+      </template>
+    </Suspense>
+  </div>
+</template>
+```
+
+如果异步组件加载失败，可以使用 `onErrorCaptured` 来捕获：
+
+```vue
+// index.vue
+<script lang="ts">
+import { onErrorCaptured } from "vue";
+export default {
+  // ... ...
+  setup() {
+    onErrorCaptured(error => {
+      // 捕获异常
+      console.log(error);
+      return true;
+    });
+
+    return {};
+  },
+};
+</script>
+```
