@@ -7,6 +7,14 @@ const ele = (
   </div>
 );
 
-console.log(ele);
+function Home() {
+  return (
+    <div className="active" title="123">
+      hello, <span>react</span>
+    </div>
+  );
+}
 
-ReactDOM.render(ele, document.querySelector("#app"));
+const title = "active";
+
+ReactDOM.render(<Home name={title} />, document.querySelector("#app"));

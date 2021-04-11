@@ -1,3 +1,5 @@
+> 视频教程: https://www.bilibili.com/video/BV1cE411B7by?from=search&seid=5214127956231478250
+
 # 1. Parcel 安装与使用
 
 Parcel 是 Web 应用打包工具，适用于经验不同的开发者。它利用多核处理提供了极快的速度，并且不需要任何配置。
@@ -13,7 +15,7 @@ yarn add parcel-bundler --dev
 安装 babel ，将 jsx 语法转化成 js 对象（虚拟DDM）：
 
 ```shell
-yarn add 
+yarn add @babel/core @babel/plugin-transform-react-jsx @babel/preset-env --dev
 ```
 
 配置 .babelrc ：
@@ -281,3 +283,65 @@ function setAttribute(dom, key, value) {
 
 export default ReactDOM;
 ```
+
+# 3. 组件的实现
+
+在上一节中，我们实现了 render 函数，render 函数的第一个参数可以传入一个虚拟节点。但是，在实际的 React 中，第一个参数还可以传入一个函数组件，因此我们以此为切入点，探讨一下 React 中组件的渲染原理。
+
+# 3.1 让 render 函数支持传入组件
+
+我们先来看一下经过 babel 转义的组件 jsx 长什么样子：
+
+```jsx
+function Home() {
+  return (
+    <div className="active" title="123">
+      hello, <span>react</span>
+    </div>
+  );
+}
+
+const title = "active";
+
+console.log(<Home name={title} />);
+```
+
+输出结果：
+
+![](https://i.loli.net/2021/04/11/cvX3gjTHPVD1OBI.png)
+
+我们可以发现，函数组件被处理为虚拟节点对象后，tag 中包含了改组件的渲染函数，因此我们可以通过 render 函数来判断 tag 属性来判断渲染对象到底是 HTMLElement 还是 React 组件，同时我们将 render 函数进行一下简单的拆分：
+
+```js
+function render(vnode, container) {
+  return container.appendChild(_render(vnode));
+}
+
+function _render(vnode) {
+  if (vnode === undefined || vnode === null || typeof vnode === "boolean") {
+    return;
+  }
+
+  // 1. 如果 tag 是函数，则渲染函数组件
+  if (typeof vnode.tag === "function") {
+    // 1. 创建组件
+    const comp = createComponent(vnode.tag, vnode.attrs);
+    // 2. 设置组件的属性
+    setComponentProps(comp, vnode.attrs);
+    // 3. 组件渲染的节点对象返回
+    return comp.base;
+  }
+
+
+  // 2. 如果 vnode 是字符串
+  if (typeof vnode === "string") {
+    // ... ...
+  }
+
+  // 3. 否则就是一个虚拟 DOM 对象
+  // ... ...
+
+  return dom;
+}
+```
+

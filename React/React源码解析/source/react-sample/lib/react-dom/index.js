@@ -1,18 +1,63 @@
+import Component from "../react/component";
+
 const ReactDOM = { render };
 
 function render(vnode, container) {
-  if (vnode === undefined) {
+  return container.appendChild(_render(vnode));
+}
+
+function createComponent(comp, props) {
+  let inst;
+  if (comp.prototype && comp.prototype.render) {
+    inst = new comp(props);
+  } else {
+    // 如果是函数组件，将函数组件扩展成类组件 方便后面统一管理
+    inst = new Component(props);
+    // 改写 constructor 为函数组件
+    inst.constructor = comp;
+    // 定义 render 函数
+    inst.render = function () {
+      return this.constructor(props);
+    };
+  }
+  return inst;
+}
+
+function renderComponent(comp) {
+  // 对组件进行渲染，获取虚拟节点对象
+  const renderer = comp.render();
+  comp.base = _render(renderer);
+}
+
+function setComponentProps(comp, props) {
+  comp.props = props;
+  renderComponent(comp);
+}
+
+function _render(vnode) {
+  if (vnode === undefined || vnode === null || typeof vnode === "boolean") {
     return;
   }
 
-  // 如果 vnode 是字符串
-  if (typeof vnode === "string") {
-    // 创建文本节点
-    const textNode = document.createTextNode(vnode);
-    return container.appendChild(textNode);
+  // 1. 如果 tag 是函数，则渲染函数组件
+  if (typeof vnode.tag === "function") {
+    // 1. 创建组件
+    const comp = createComponent(vnode.tag, vnode.attrs);
+
+    // 2. 设置组件的属性
+    setComponentProps(comp, vnode.attrs);
+
+    // 3. 组件渲染的节点对象返回
+    return comp.base;
   }
 
-  // 否则就是一个虚拟 DOM 对象
+  // 2. 如果 vnode 是字符串
+  if (typeof vnode === "string") {
+    // 创建文本节点
+    return document.createTextNode(vnode);
+  }
+
+  // 3. 否则就是一个虚拟 DOM 对象
   const { tag, attrs, children } = vnode;
   const dom = document.createElement(tag);
   if (attrs) {
@@ -27,7 +72,7 @@ function render(vnode, container) {
     children.forEach((child) => render(child, dom));
   }
 
-  return container.appendChild(dom);
+  return dom;
 }
 
 function setAttribute(dom, key, value) {
