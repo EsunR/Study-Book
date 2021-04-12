@@ -26,13 +26,14 @@ function createComponent(comp, props) {
 function renderComponent(comp) {
   // 对组件进行渲染，获取虚拟节点对象
   const renderer = comp.render();
+  console.log("renderer: ", renderer);
   comp.base = _render(renderer);
 }
 
-function setComponentProps(comp, props) {
-  comp.props = props;
-  renderComponent(comp);
-}
+// function setComponentProps(comp, props) {
+//   comp.props = props;
+//   renderComponent(comp);
+// }
 
 function _render(vnode) {
   if (vnode === undefined || vnode === null || typeof vnode === "boolean") {
@@ -44,10 +45,10 @@ function _render(vnode) {
     // 1. 创建组件
     const comp = createComponent(vnode.tag, vnode.attrs);
 
-    // 2. 设置组件的属性
-    setComponentProps(comp, vnode.attrs);
+    // 2. 渲染组件
+    renderComponent(comp);
 
-    // 3. 组件渲染的节点对象返回
+    // 3. 组件渲染后的 DOM 对象返回
     return comp.base;
   }
 

@@ -59,9 +59,15 @@ ReactDOM.render(ele, document.querySelector("#app"));
 其中， babel 会对 jsx 部分进行转义，调用 react 的 `createElement` 方法去创建虚拟 DOM 树：
 
 ```jsx
-<div className="active" title="123">
-  hello,<span style={{ color: "red" }}>React!</span>
-</div>
+function Test(){
+  const flag = true
+  const name = "ZhangSan"
+  
+  return <div className="active" title="123">
+    hello<span style={{ color: "red" }}>React!</span>
+    my name is {flag === true ? name : "LiSi"}
+  </div>
+}
 ```
 
 Babel 转义后：
@@ -69,16 +75,21 @@ Babel 转义后：
 ```js
 "use strict";
 
-/*#__PURE__*/
-React.createElement("div", {
-  className: "active",
-  title: "123"
-}, "hello,", /*#__PURE__*/React.createElement("span", {
-  style: {
-    color: "red"
-  }
-}, "React!"));
+function Test() {
+  const flag = true;
+  const name = "ZhangSan";
+  return /*#__PURE__*/React.createElement("div", {
+    className: "active",
+    title: "123"
+  }, "hello", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "red"
+    }
+  }, "React!"), "my name is ", flag === true ? name : "LiSi");
+}
 ```
+
+> 在 Babel 进行对 jsx 语法的转义过程中，也会对模板语法直接进行转义，调用其中使用的变量
 
 同样的，我们可以不编写 JSX，直接调用 `React.createElement()` 方法来生成虚拟 DOM 树，然后再调用 `ReactDOM.render()` 来渲染虚拟 DOM 树：
 
@@ -326,9 +337,9 @@ function _render(vnode) {
   if (typeof vnode.tag === "function") {
     // 1. 创建组件
     const comp = createComponent(vnode.tag, vnode.attrs);
-    // 2. 设置组件的属性
-    setComponentProps(comp, vnode.attrs);
-    // 3. 组件渲染的节点对象返回
+    // 2. 渲染组件
+    renderComponent(comp)
+    // 3. 组件渲染后的 DOM 对象返回
     return comp.base;
   }
 
@@ -345,3 +356,55 @@ function _render(vnode) {
 }
 ```
 
+## 3.2 createComponent
+
+在 `_render()` 函数中，如果传入的是一个函数或 class 组件，首先要实现一个 `createComponent` 方法，来将组件进行 **实例化**，最终的实例化对象上会有一个 `render()` 方法来生成具体的虚拟 DOM 对象。
+
+以下是 `createComponent` 方法的具体实现：
+
+```js
+function createComponent(comp, props) {
+  let inst;
+  if (comp.prototype && comp.prototype.render) {
+    inst = new comp(props); // (1)
+  } else {
+    inst = new Component(props); // (2)
+    inst.constructor = comp; // (3)
+    inst.render = function () {
+      return this.constructor(props);
+    }; // (4)
+  }
+  return inst;
+}
+```
+
+如果我们传入的是一个 class 组件，那么直接将其进行实例化，**注意此时组件就会执行构造函数的 `constructor` 部分，如进行 state 的初始化**，最终实例化后的对象上会挂载一个 `render` 方法（1）；
+
+但如果我们传入的是一个函数组件，我们要将其构造为一个 class 组件，在构造为一个 class 组件之前，我们需要首先声明 `Component` 类：
+
+```js
+// component.js
+class Component {
+  constructor(props = {}) {
+    this.props = props;
+    this.state = {};
+  }
+}
+
+export default Component;
+```
+
+首先我们实例化一个 `Component` 对象，作为我们即将改造的“初始对象”，此时要注意将组件属性 `props` 传入，这样在组件对象上才能取到传入的 `props`（2）；之后我们将函数组件的函数体挂载到生成的 Component 对象的 `constructor` 上，我们这一步是改写了生成的 Component 对象的构造方法（3），目前来看意义不大；之后，我们将生成的 Component 对象的 `render()` 方法改写为函数组件的函数体（4），这样就将一个函数组件改写为了 class 组件。
+
+## 3.3 renderComponent
+
+在调用 `renderComponent` 之前，我们已经完成了对函数组件、class 组件的实例化，并且将外部传入的组件属性挂载到了实例化对象的 `props` 属性上，同时实例化好的组件对象上有用 `render()` 方法，执行后可以返回一个虚拟节点对象。
+
+因此，在 `renderComponent` 方法中，我们主要是调用组件的 `render()` 函数（1），然后再将生成的虚拟节点对象传入到 `_render()` 函数中，渲染为真实的 DOM 对象，并将 DOM 对象挂载到组件实例的 base 属性上（2）：
+
+```js
+function renderComponent(comp) {
+  const renderer = comp.render(); // (1)
+  comp.base = _render(renderer); // (2)
+}
+```

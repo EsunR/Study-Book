@@ -10,7 +10,7 @@ const ele = (
 function Home() {
   return (
     <div className="active" title="123">
-      hello, <span>react</span>
+      hello, <span>react {`${this.props.name}`}</span>
     </div>
   );
 }
