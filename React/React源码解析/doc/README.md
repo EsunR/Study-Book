@@ -278,16 +278,16 @@ function setAttribute(dom, key, value) {
         }
       }
     }
-    // 其他属性直接赋值
-    else {
-      if (key in dom) {
-        dom[key] = value || "";
-      }
-      if (value) {
-        dom.setAttribute(key, value);
-      } else {
-        dom.removeAttribute(key);
-      }
+  }
+  // 其他属性直接赋值
+  else {
+    if (key in dom) {
+      dom[key] = value || "";
+    }
+    if (value) {
+      dom.setAttribute(key, value);
+    } else {
+      dom.removeAttribute(key);
     }
   }
 }
