@@ -1,11 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import Home from "./components/Home";
 
 ReactDOM.render(
   <React.StrictMode>
-    <div onClick={() => {}}>
-      <h3>hello, react</h3>
-    </div>
+    <Home title="this is home" />
   </React.StrictMode>,
   document.getElementById("root")
 );

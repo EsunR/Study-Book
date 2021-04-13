@@ -23,11 +23,24 @@ function createComponent(comp, props) {
   return inst;
 }
 
-function renderComponent(comp) {
+export function renderComponent(comp) {
   // 对组件进行渲染，获取虚拟节点对象
   const renderer = comp.render();
-  console.log("renderer: ", renderer);
-  comp.base = _render(renderer);
+  let base = _render(renderer);
+
+  if (comp.base) {
+    comp?.componentWillUpdate(comp.props, comp.state);
+  } else {
+    comp?.componentDidMount();
+  }
+
+  // 节点替换
+  if (comp?.base?.parentNode) {
+    comp.base.parentNode.replaceChild(base, comp.base);
+    comp?.componentDidUpdate();
+  }
+
+  comp.base = base;
 }
 
 // function setComponentProps(comp, props) {
@@ -46,6 +59,9 @@ function _render(vnode) {
     const comp = createComponent(vnode.tag, vnode.attrs);
 
     // 2. 渲染组件
+    if (!comp.base) {
+      comp?.componentWillMount();
+    }
     renderComponent(comp);
 
     // 3. 组件渲染后的 DOM 对象返回
@@ -53,9 +69,9 @@ function _render(vnode) {
   }
 
   // 2. 如果 vnode 是字符串
-  if (typeof vnode === "string") {
+  if (typeof vnode === "string" || typeof vnode === "number") {
     // 创建文本节点
-    return document.createTextNode(vnode);
+    return document.createTextNode(vnode.toString());
   }
 
   // 3. 否则就是一个虚拟 DOM 对象
@@ -103,16 +119,16 @@ function setAttribute(dom, key, value) {
         }
       }
     }
-    // 其他属性直接赋值
-    else {
-      if (key in dom) {
-        dom[key] = value || "";
-      }
-      if (value) {
-        dom.setAttribute(key, value);
-      } else {
-        dom.removeAttribute(key);
-      }
+  }
+  // 其他属性直接赋值
+  else {
+    if (key in dom) {
+      dom[key] = value || "";
+    }
+    if (value) {
+      dom.setAttribute(key, value);
+    } else {
+      dom.removeAttribute(key);
     }
   }
 }

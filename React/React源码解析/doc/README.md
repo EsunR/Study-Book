@@ -299,7 +299,7 @@ export default ReactDOM;
 
 在上一节中，我们实现了 render 函数，render 函数的第一个参数可以传入一个虚拟节点。但是，在实际的 React 中，第一个参数还可以传入一个函数组件，因此我们以此为切入点，探讨一下 React 中组件的渲染原理。
 
-# 3.1 让 render 函数支持传入组件
+## 3.1 让 render 函数支持传入组件
 
 我们先来看一下经过 babel 转义的组件 jsx 长什么样子：
 
@@ -407,4 +407,156 @@ function renderComponent(comp) {
   const renderer = comp.render(); // (1)
   comp.base = _render(renderer); // (2)
 }
+```
+
+# 4. 生命周期
+
+在上一节中，我们已经完善了组件的渲染过程，那么在本章节中，我们将还原 React 组件[生命周期函数](https://zh-hans.reactjs.org/docs/react-component.html#the-component-lifecycle)的调用过程。我们将着重探讨 `componentWillMount` `componentDidMount` `componentWillUpdate` `componentDidUpdate` 这四个生命周期函数。
+
+## 4.1 componentWillMount 与 componentDidMount
+
+> UNSAFE_componentWillMount() 在挂载之前被调用。它在 render() 之前调用，因此在此方法中同步调用 setState() 不会触发额外渲染。
+
+根据以上的特性我们很容易判断出 `componentWillMount` 的执行位置，让其在 `renderComponent()` 之前执行并且仅执行一次即可：
+
+```js
+function _render(vnode) {
+  // ... ...
+
+  if (typeof vnode.tag === "function") {
+    const comp = createComponent(vnode.tag, vnode.attrs);
+
+    if (!comp.base) {
+      comp?.componentWillMount();
+    } // 执行 componentWillMount
+
+    renderComponent(comp);
+
+    return comp.base;
+  }
+
+  // ... ... 
+}
+```
+
+> componentDidMount() 会在组件挂载后（插入 DOM 树中）立即调用。依赖于 DOM 节点的初始化应该放在这里。如需通过网络请求获取数据，此处是实例化请求的好地方。
+
+`componentDidMount` 要在组件完成挂载时执行，且只执行一次，那么在 `renderComponent` 过程中，我们可以将其放置在组件渲染完成并且是初次挂载时执行。
+
+> !!! 此处教程有误，componentDidMount 应该在组件 DOM 挂载到页面上后再执行，按照下面的写法显然实在 DOM 被挂载之前执行  !!!
+
+```js
+export function renderComponent(comp) {
+  // 对组件进行渲染，获取虚拟节点对象
+  const renderer = comp.render();
+  let base = _render(renderer);
+
+  if (!comp.base) {
+    comp?.componentDidMount();
+  }
+
+  comp.base = base;
+}
+```
+
+## 4.2 componentWillUpdate 与 componentDidUpdate
+
+要执行这两个方法，我们首先要实现组件内部 state 的更新以及重新渲染，我们先编写一个如下的 demo 组件：
+
+```jsx
+class Home extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      num: 0,
+    };
+  }
+  // Handle
+  handleClick() {
+    this.setState({
+      num: this.state.num + 1,
+    });
+  }
+  render() {
+    return (
+      <div id="home">
+        <h1>{this.props.title}</h1>
+        <span>hello, react!</span>
+        <button onClick={this.handleClick.bind(this)}>
+          Click me! ({this.state.num})
+        </button>
+      </div>
+    );
+  }
+}
+```
+
+![](https://i.loli.net/2021/04/14/3aBXAwJmQlzVtKx.png)
+
+当用户点击按钮后，state 中存放的 num 变量就会被加一，然后页面会触发重新渲染，来展示整个页面。
+
+要实现 state 的变更以及重新渲染，我们首先要扩展一下 Component 组件：
+
+```diff
++ import { renderComponent } from "../react-dom/index";
+
+  class Component {
+    constructor(props = {}) {
+      this.props = props;
+      this.state = {};
+    }
++   setState(stateChange) {
++     Object.assign(this.state, stateChange); // (1)
++     renderComponent(this); // (2)
++   }
+  }
+
+export default Component;
+```
+
+我们为 `Component` 添加 `setState` 方法，此时我们为了方便编写 demo，只是简单的将 state 进行了浅拷贝并覆盖值（1），实际的 setState 操作是异步的。进行了赋值操作之后，我们重新调用 `renderComponent` 方法对组件进行重新渲染，并将当前组件作为渲染对象传入（2）。
+
+此时我们点击按钮后，会发现页面上的 DOM 结构并不会改变，但是在 `renderComponent` 方法中打印出当前的组件对象，其 base 上挂载的 HTMLElement 的确是已经发生了更新，这就说明我们并没有将更新后的 HTMLElement 挂载到页面上。
+
+更新节点的方法其实也很简单，我们只需要获取到当前组件的父节点，然后使用 `replaceChild()` 方法，替换父节点的内容为最新的组件节点就可以了（1）。
+
+```diff
+  export function renderComponent(comp) {
+    // 对组件进行渲染，获取虚拟节点对象
+    const renderer = comp.render();
+    let base = _render(renderer);
+
++   // 节点替换
++   if (comp?.base?.parentNode) {
++     comp.base.parentNode.replaceChild(base, comp.base); // (1)
++   }
+
+    comp.base = base;
+  }
+```
+
+这时，我们根据 `componentWillUpdate` 与 `componentDidUpdate` 的定义，就很容易得知其执行的位置：
+
+> 当组件收到新的 props 或 state 时，会在渲染之前调用 UNSAFE_componentWillUpdate()。使用此作为在更新发生之前执行准备更新的机会。初始渲染不会调用此方法。
+
+> componentDidUpdate() 会在更新后会被立即调用。首次渲染不会执行此方法。
+
+```diff
+  export function renderComponent(comp) {
+    const renderer = comp.render();
+    let base = _render(renderer);
+
++   if (comp.base) {
++     comp?.componentWillUpdate(comp.props, comp.state);
++   } else {
++     comp?.componentDidMount();
++   }
+
+    if (comp?.base?.parentNode) {
+      comp.base.parentNode.replaceChild(base, comp.base);
++     comp?.componentDidUpdate();
+    }
+
+    comp.base = base;
+  }
 ```
