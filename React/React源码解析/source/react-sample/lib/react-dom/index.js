@@ -1,9 +1,11 @@
 import Component from "../react/component";
+import { diff } from "./diff";
 
 const ReactDOM = { render };
 
-function render(vnode, container) {
-  return container.appendChild(_render(vnode));
+function render(vnode, container, dom) {
+  // return container.appendChild(_render(vnode));
+  return diff(dom, vnode, container);
 }
 
 function createComponent(comp, props) {
@@ -34,7 +36,7 @@ export function renderComponent(comp) {
     comp?.componentDidMount();
   }
 
-  // 节点替换
+  // 组件 state 发生变化后，重新渲染节点，需要进行节点替换
   if (comp?.base?.parentNode) {
     comp.base.parentNode.replaceChild(base, comp.base);
     comp?.componentDidUpdate();
@@ -92,7 +94,7 @@ function _render(vnode) {
   return dom;
 }
 
-function setAttribute(dom, key, value) {
+export function setAttribute(dom, key, value) {
   // 将属性名 className 转化为 class
   if (key === "className") {
     key = "class";

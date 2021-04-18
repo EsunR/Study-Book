@@ -60,4 +60,4 @@ class Home extends React.Component {
   }
 }
 
-ReactDOM.render(<Home title={title} />, document.querySelector("#app"));
+ReactDOM.render(ele, document.querySelector("#app"));
