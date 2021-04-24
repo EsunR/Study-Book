@@ -1,4 +1,4 @@
-import { setAttribute } from "./index";
+import { setAttribute, setComponentProps, createComponent } from "./index";
 
 export function diff(dom, vnode, container) {
   // 对比节点的变化
@@ -15,14 +15,14 @@ export function diff(dom, vnode, container) {
  * @param {*} vnode 虚拟节点
  * @returns 生成的新节点
  */
-function diffNode(dom, vnode) {
+export function diffNode(dom, vnode) {
   let out = dom;
 
   if (vnode === undefined || vnode === null || typeof vnode === "boolean") {
     return;
   }
 
-  // 文本节点
+  // 1. 文本节点
   if (typeof vnode === "string" || typeof vnode === "number") {
     // 如果真实节点同样是文本节点
     if (dom && dom.nodeType === 3) {
@@ -41,12 +41,18 @@ function diffNode(dom, vnode) {
     return out;
   }
 
-  // 非文本的 dom 节点
+  // 2. 如果是一个组件
+  if (typeof vnode.tag === "function") {
+    return diffComponent(dom, vnode);
+  }
+
+  // 3. 非文本的 dom 节点
+  // 3.1 如果 dom 不存在
   if (!dom) {
     out = document.createElement(vnode.tag);
   }
 
-  // 比较自动节点（dom节点和组件）
+  // 3.2 如果节点存在则进行子节点对比
   if (
     (vnode.children && vnode.children.length > 0) ||
     (out.childNodes && out.childNodes.length > 0)
@@ -57,6 +63,31 @@ function diffNode(dom, vnode) {
   diffAttributes(out, vnode);
 
   return out;
+}
+
+function diffComponent(dom, vnode) {
+  let comp = dom;
+  // 如果组件没有变化,则重新设置 props;   执行
+  if (comp && comp.constructor === vnode.tag) {
+    // 重新设置 props 并渲染
+    setComponentProps(comp, vnode.attrs);
+    // 赋值
+    dom = comp.base;
+  } else {
+    // 如果组件类型变化,则移除掉原来组件,并渲染新组件
+    // 移除
+    if (comp) {
+      unmountComponent(comp);
+      comp = null;
+    }
+    //核心代码
+    // 1.创建新组件
+    comp = createComponent(vnode.tag, vnode.attrs);
+    // 2.设置组件属性
+    setComponentProps(comp, vnode.attrs);
+    dom = comp.base;
+  }
+  return dom;
 }
 
 function diffAttributes(dom, vnode) {
@@ -100,7 +131,8 @@ function diffChildren(dom, vchildren) {
         keyed[key] = item;
       } else {
         // 如果key不存在,保存到数组中
-        children.push(item);``
+        children.push(item);
+        ``;
       }
     });
   }

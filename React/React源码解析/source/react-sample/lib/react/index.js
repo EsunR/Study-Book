@@ -10,7 +10,7 @@ function createElement(tag, attrs, ...children) {
     tag,
     attrs,
     children,
-    key: attrs.key || null, 
+    key: attrs?.key ?? null,
   };
 }
 

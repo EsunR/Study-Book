@@ -1,5 +1,5 @@
 import Component from "../react/component";
-import { diff } from "./diff";
+import { diff, diffNode } from "./diff";
 
 const ReactDOM = { render };
 
@@ -8,7 +8,7 @@ function render(vnode, container, dom) {
   return diff(dom, vnode, container);
 }
 
-function createComponent(comp, props) {
+export function createComponent(comp, props) {
   let inst;
   if (comp.prototype && comp.prototype.render) {
     inst = new comp(props);
@@ -26,29 +26,28 @@ function createComponent(comp, props) {
 }
 
 export function renderComponent(comp) {
+  let base;
   // 对组件进行渲染，获取虚拟节点对象
   const renderer = comp.render();
-  let base = _render(renderer);
 
   if (comp.base) {
+    // 组件更新时引发重新渲染
     comp?.componentWillUpdate(comp.props, comp.state);
-  } else {
-    comp?.componentDidMount();
-  }
-
-  // 组件 state 发生变化后，重新渲染节点，需要进行节点替换
-  if (comp?.base?.parentNode) {
-    comp.base.parentNode.replaceChild(base, comp.base);
+    base = diffNode(comp.base, renderer);
     comp?.componentDidUpdate();
+  } else {
+    // 初次渲染
+    base = _render(renderer);
+    comp?.componentDidMount();
   }
 
   comp.base = base;
 }
 
-// function setComponentProps(comp, props) {
-//   comp.props = props;
-//   renderComponent(comp);
-// }
+export function setComponentProps(comp, props) {
+  comp.props = props;
+  renderComponent(comp);
+}
 
 function _render(vnode) {
   if (vnode === undefined || vnode === null || typeof vnode === "boolean") {
@@ -60,11 +59,11 @@ function _render(vnode) {
     // 1. 创建组件
     const comp = createComponent(vnode.tag, vnode.attrs);
 
-    // 2. 渲染组件
+    // 2. 更新组件 props 并渲染组件
     if (!comp.base) {
       comp?.componentWillMount();
     }
-    renderComponent(comp);
+    setComponentProps(comp, vnode.attrs); // 实际上，在 createComponent 中我们对组件的 props 进行了挂载，所以 setComponentProps 方法中的 comp.props = props 在这里使用其实是没有必要的
 
     // 3. 组件渲染后的 DOM 对象返回
     return comp.base;

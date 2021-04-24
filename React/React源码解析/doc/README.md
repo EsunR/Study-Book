@@ -337,8 +337,8 @@ function _render(vnode) {
   if (typeof vnode.tag === "function") {
     // 1. 创建组件
     const comp = createComponent(vnode.tag, vnode.attrs);
-    // 2. 渲染组件
-    renderComponent(comp)
+    // 2. 设置组件 props 并渲染组件
+    setComponentProps(com, vnode.attrs);
     // 3. 组件渲染后的 DOM 对象返回
     return comp.base;
   }
@@ -396,7 +396,20 @@ export default Component;
 
 首先我们实例化一个 `Component` 对象，作为我们即将改造的“初始对象”，此时要注意将组件属性 `props` 传入，这样在组件对象上才能取到传入的 `props`（2）；之后我们将函数组件的函数体挂载到生成的 Component 对象的 `constructor` 上，我们这一步是改写了生成的 Component 对象的构造方法（3），目前来看意义不大；之后，我们将生成的 Component 对象的 `render()` 方法改写为函数组件的函数体（4），这样就将一个函数组件改写为了 class 组件。
 
-## 3.3 renderComponent
+## 3.3 setComponentProps
+
+`setComponentProps` 方法负责对组件的 props 进行更新，并触发组件的渲染：
+
+```jsx
+export function setComponentProps(comp, props) {
+  comp.props = props;
+  renderComponent(comp);
+}
+```
+
+> 其实，在目前组件执行初次渲染时 `comp.props = props` 的执行是没有意义的，因为在执行 `createComponent` 组件实例化时，就已经完成了对 props 的挂载。我们在这里再重新挂载一次是因为该方法不仅在组件初始化时调用，也会在组件更新时调用。当组件更新时，直接调用该方法就可以直接完成 props 的更新以及组件的重新渲染。
+
+## 3.4 renderComponent
 
 在调用 `renderComponent` 之前，我们已经完成了对函数组件、class 组件的实例化，并且将外部传入的组件属性挂载到了实例化对象的 `props` 属性上，同时实例化好的组件对象上有用 `render()` 方法，执行后可以返回一个虚拟节点对象。
 
@@ -556,6 +569,347 @@ export default Component;
       comp.base.parentNode.replaceChild(base, comp.base);
 +     comp?.componentDidUpdate();
     }
+
+    comp.base = base;
+  }
+```
+
+# 5. Diff 算法的实现
+
+截至目前，我们已经刨析了 jsx 的渲染以及组件 state 的更新，那么接下来我们会进一步对渲染流程进行优化。
+
+在前面的写法中，每当 state 改变触发组件重新渲染时，都会从头开始进行渲染，这样对性能的损耗是很大的。为了优化 DOM 结构的更新性能，react 引入了 diff 算法，这个算法会对比每个**同级节点的变更**，如果当前节点与之前相较发生了变更，就会更新当前节点与其子节点，这比重新渲染整个 DOM 结构要高效的多。
+
+![](https://i.loli.net/2021/04/24/fZUiX1TAMw2aI8F.png)
+
+总而言之,我们的diff算法有两个原则：
+
+- 对比当前真实的DOM和虚拟DOM,在对比过程中直接更新真实DOM
+- 只对比同一层级的变化
+
+## 5.1 起步
+
+先修改render函数,将\_render方法渲染的方式改为我们即将写的diff算法方式
+
+`/react-dom/index.js`
+
+```jsx
+import diff from './diff';
+const ReactDOM = {
+    render
+}
+
+function render(vnode, container) {
+    // return container.appendChild(_render(vnode));
+    return diff(dom,vnode,container);
+}
+```
+
+由上面的`diff()`可以看出,传入了 `真实DOM对象,虚拟DOM对象,根元素`
+
+## 5.2 实现
+
+实现一个diff算法,它的作用是对比真实的DOM和虚拟DOM,最后返回更新后的DOM
+
+`/react-dom/diff.js`
+
+```jsx
+/*
+dom:真实DOM
+vnode:虚拟DOM
+container: 容器
+return : 更新后的DOM
+*/
+export function diff(dom,vnode,container) {
+    // 返回更新后的节点
+    let ret =  diffNode(dom,vnode);
+
+    return ret;
+}
+function diffNode(dom,vnode){
+	//......
+}
+```
+
+接下来实现这个方法
+
+在这之前先来回忆一下我们虚拟DOM的结构:
+
+虚拟DOM的结构可以分为三种,分别表示文本,原生DOM节点以及组件
+
+```jsx
+// 原生DOM节点的vnode
+{
+    tag: 'div',
+    attrs: {
+        className: 'container'
+    },
+    children: []
+}
+
+// 文本节点的vnode
+"hello,world"
+
+// 组件的vnode
+{
+    tag: ComponentConstrucotr,
+    attrs: {
+        className: 'container'
+    },
+    children: []
+}
+```
+
+## 5.3 对比文本节点
+
+首先考虑最简单的文本节点,如果当前的DOM就是文本节点,则直接更新内容,否则就新建一个文本节点,并移除原来的DOM
+
+```jsx
+function diffNode(dom,vnode) {
+    let out = dom;
+    if(typeof vnode === 'string'){
+      // 如果当前的dom是文本节点,则直接更新内容
+      if(dom && dom.nodeType === 3){
+          if(dom.textContent !== vnode) dom.textContent = vnode;
+      } else{
+        //  如果dom不是文本节点,则新建一个文本节点dom,并移除原来的dom
+        out = document.createTextNode(vnode);
+        if(dom && dom.parentNode){
+            dom.parentNode.replaceChild(out,dom);
+        }
+      }
+        return out;
+    }
+    return out;
+}
+```
+
+文本节点十分简单,它没有属性,也没有子元素
+
+## 5.4 对比组件
+
+之前也说过,react组件分为函数组件和类组件,我们定制一个方法`diffComponent`
+
+```jsx
+import setComponentProps from "./index.js"
+
+function diffNode(dom,vnode){
+    //...
+    //如果是一个组件
+    if (typeof vnode.tag === 'function') {
+        return diffComponent(dom, vnode);
+    }
+    //....
+}
+function diffComponent(dom, vnode) {
+    let comp = dom;
+    // 如果组件没有变化,则重新设置 props;   执行
+    if (comp && comp.constructor === vnode.tag) {
+        // 重新设置 props 并渲染
+        setComponentProp(comp, vnode.attrs);
+        // 赋值
+        dom = comp.base;
+    } else {
+        // 如果组件类型变化,则移除掉原来组件,并渲染新组件
+        // 移除
+        if (comp) {
+            unmountComponent(comp);
+            comp = null;
+        }
+        //核心代码
+        // 1.创建新组件
+        comp = createComponent(vnode.tag, vnode.attrs);
+        // 2.设置组件属性
+        setComponentProp(comp, vnode.attrs);
+        dom = comp.base;
+    }
+    return dom;
+}
+```
+
+## 5.5 对比非文本DOM节点
+
+如果vnode表示的是一个非文本DOM节点,分两种情况分析:
+
+情况一: 如果真实DOM不存在,表示此节点是新增的
+
+```jsx
+if(!dom){
+    updateDOM = document.createElement(vnode.tag);
+}
+```
+
+情况二:如果真实DOM存在,需要`对比属性`和`对比子节点`
+
+### 5.5.1 对比属性
+
+找出来节点的属性以及事件监听的变化 单独起一个`diffAttributes`方法
+
+```jsx
+//设置属性和移除属性的时候 使用到了此方法.注意:移除属性 只需要设置属性值为undefined就可以
+import { setAttribute } from './index';
+function diffNode(dom,vnode){
+    let out = dom;
+	  //  ....
+    // 如果是非文本DOM节点
+    // 真实DOM不存在
+    if(!dom){
+      out = document.createElement(vnode.tag);
+	  }
+    // 如果真实DOM存在,需要对比属性和对比子节点
+    diffAttributes(out,vnode);
+    //...
+    return out;
+}
+function diffAttributes(dom, vnode) {
+    // 保存之前的真实DOM的所有属性
+    const oldAttrs = {};
+    const newAttrs = vnode.attrs; //虚拟DOM的属性 (也是最新的属性)
+    // 获取真实DOM属性
+    const domAttrs = dom.attributes;
+    // const domAttrs =  document.querySelector('#root').attributes;
+    [...domAttrs].forEach(item => {
+        oldAttrs[item.name] = item.value;
+    })
+    // 比较
+    // 如果原来的属性不在新的属性当中,则将其移除掉  (属性值直接设置undefined)
+    for (let key in oldAttrs) {
+        if (!(key in newAttrs)) {
+            // 移除
+            setAttribute(dom, key, undefined);
+        }
+    }
+    // 更新新的属性值
+    for (let key in newAttrs) {
+        if (oldAttrs[key] !== newAttrs[key]) {
+            console.log(dom, newAttrs[key], key);
+            // 只更值不相等的属性
+            setAttribute(dom, key, newAttrs[key]);
+        }
+    }
+}
+```
+
+### 5.5.2 对比子节点
+
+节点对比完成之后,接下来对比它的子节点
+
+这个时候会有一个问题,前面我们实现的不同的diff算法,都是明确知道哪一个是真实DOM和虚拟DOM对比,但是子节点childrens是一个数组,他们可能改变顺序,或者数量有所变化,我们很难确定是和虚拟DOM对比的是哪一个?
+
+> 思路:给节点设置一个key值,重新渲染时对比key值相同的节点,这样我们就能找到真实DOM和哪个虚拟DOM进行对比了
+
+对比子节点的方法有点复杂,在这里理解一下原理
+
+```jsx
+function diffNode(dom,vnode){
+     if (vnode.childrens && vnode.childrens.length > 0 || (out.childNodes && out.childNodes.length > 0)) {
+        diffChildren(out, vnode.childrens);
+    }
+}
+```
+
+```jsx
+function diffChildren(dom, vchildren) {
+  const domChildren = dom.childNodes;
+  const children = [];
+  const keyed = {};
+  // 将有key的节点(用对象保存)和没有key的节点(用数组保存)分开
+  if (domChildren.length > 0) {
+    [...domChildren].forEach((item) => {
+      // 获取key
+      const key = item.key;
+      if (key) {
+        // 如果key存在,保存到对象中
+        keyed[key] = item;
+      } else {
+        // 如果key不存在,保存到数组中
+        children.push(item);``
+      }
+    });
+  }
+  if (vchildren && vchildren.length > 0) {
+    let min = 0;
+    let childrenLen = children.length; //2
+    [...vchildren].forEach((vchild, i) => {
+      // 获取虚拟DOM中所有的key
+      const key = vchild.key;
+      let child;
+      if (key) {
+        // 如果有key,找到对应key值的节点
+        if (keyed[key]) {
+          child = keyed[key];
+          keyed[key] = undefined;
+        }
+      } else if (childrenLen > min) {
+        // 如果没有key,则优先找类型相同的节点
+        // 遍历所有真实节点的子节点
+        for (let j = min; j < childrenLen; j++) {
+          let c = children[j];
+          if (c) {
+            child = c;
+            children[j] = undefined;
+            if (j === childrenLen - 1) {
+              childrenLen--;
+            }
+            if (j === min) {
+              min++;
+            }
+            break;
+          }
+        }
+      }
+      // 对比
+      child = diffNode(child, vchild);
+      // 更新DOM
+      const f = domChildren[i];
+      if (child && child !== dom && child !== f) {
+        // 如果更新前的对应位置为空，说明此节点是新增的
+        if (!f) {
+          dom.appendChild(child);
+          // 如果更新后的节点和更新前对应位置的下一个节点一样，说明当前位置的节点被移除了
+        } else if (child === f.nextSibling) {
+          dom.removeChild(f);
+          // 将更新后的节点移动到正确的位置
+        } else {
+          // 注意insertBefore的用法，第一个参数是要插入的节点，第二个参数是已存在的节点
+          dom.insertBefore(child, f);
+        }
+      }
+    });
+  }
+}
+```
+
+整个流程如下：
+
+![](https://i.loli.net/2021/04/24/ZH2CcJqKeiDtBu3.png)
+
+最后再修改`renderComponent`方法的两个地方
+
+
+```diff
+  export function renderComponent(comp) {
++   let base
+    // 对组件进行渲染，获取虚拟节点对象
+    const renderer = comp.render();
+-   let base = _render(renderer);
+
+    if (comp.base) {
+      // 组件更新时引发重新渲染
+      comp?.componentWillUpdate(comp.props, comp.state);
++     base = diffNode(comp.base,renderer);
++     comp?.componentDidUpdate();
+    } else {
+      // 初次渲染
++     base = _render(renderer);
+      comp?.componentDidMount();
+    }
+
+-   // 组件 state 发生变化后，重新渲染节点，需要进行节点替换
+-   if (comp?.base?.parentNode) {
+-     comp.base.parentNode.replaceChild(base, comp.base);
+-     comp?.componentDidUpdate();
+-   }
 
     comp.base = base;
   }
