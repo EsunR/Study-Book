@@ -34,14 +34,14 @@ export function renderComponent(comp) {
     // 组件更新时引发重新渲染
     comp?.componentWillUpdate(comp.props, comp.state);
     base = diffNode(comp.base, renderer);
+    comp.base = base;
     comp?.componentDidUpdate();
   } else {
     // 初次渲染
     base = _render(renderer);
+    comp.base = base;
     comp?.componentDidMount();
   }
-
-  comp.base = base;
 }
 
 export function setComponentProps(comp, props) {

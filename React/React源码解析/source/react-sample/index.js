@@ -1,12 +1,6 @@
 import React from "./lib/react";
 import ReactDOM from "./lib/react-dom";
 
-const ele = (
-  <div className="active" title="123">
-    hello,<span style={{ color: "red" }}>React!</span>
-  </div>
-);
-
 // function Home() {
 //   return (
 //     <div className="active" title="123">
@@ -29,14 +23,20 @@ class Home extends React.Component {
   }
   componentDidMount() {
     console.log("componentDidMount");
-    console.log(document.querySelector("#home"));
+    for (let i = 0; i < 10; i++) {
+      this.setState({
+        num: this.state.num + 1,
+      });
+    }
+    console.log(this.state.num);
   }
-  componentWillUpdate() {
+  componentWillUpdate(nextProps, nextState) {
     console.log("componentWillUpdate");
+    console.log("nextProps: ", nextProps);
+    console.log("nextState: ", nextState);
   }
   componentDidUpdate() {
     console.log("componentDidUpdate");
-    console.log(document.querySelector("#home"));
   }
   componentWillReceiveProps(props) {
     console.log("componentWillReceiveProps: ", props);
@@ -60,4 +60,11 @@ class Home extends React.Component {
   }
 }
 
-ReactDOM.render(<Home title="hi~" />, document.querySelector("#app"));
+const ele = (
+  <div className="active" title="123">
+    hello,<span style={{ color: "red" }}>React!</span>
+    <Home title="Title" />
+  </div>
+);
+
+ReactDOM.render(ele, document.querySelector("#app"));

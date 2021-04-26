@@ -562,15 +562,17 @@ export default Component;
 +   if (comp.base) {
 +     comp?.componentWillUpdate(comp.props, comp.state);
 +   } else {
++     comp.base = base; // 组件必须在挂载后再触发 componentDidMount
 +     comp?.componentDidMount();
 +   }
 
     if (comp?.base?.parentNode) {
       comp.base.parentNode.replaceChild(base, comp.base);
++     comp.base = base;
 +     comp?.componentDidUpdate();
     }
 
-    comp.base = base;
+-   comp.base = base;
   }
 ```
 
@@ -898,10 +900,12 @@ function diffChildren(dom, vchildren) {
       // 组件更新时引发重新渲染
       comp?.componentWillUpdate(comp.props, comp.state);
 +     base = diffNode(comp.base,renderer);
+      comp.base = base;
 +     comp?.componentDidUpdate();
     } else {
       // 初次渲染
 +     base = _render(renderer);
+      comp.base = base;
       comp?.componentDidMount();
     }
 
@@ -910,7 +914,8 @@ function diffChildren(dom, vchildren) {
 -     comp.base.parentNode.replaceChild(base, comp.base);
 -     comp?.componentDidUpdate();
 -   }
-
-    comp.base = base;
   }
 ```
+
+# 6. 异步 setState
+
