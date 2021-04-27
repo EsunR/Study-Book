@@ -67,7 +67,7 @@ export function diffNode(dom, vnode) {
 
 function diffComponent(dom, vnode) {
   let comp = dom;
-  // 如果组件没有变化,则重新设置 props;   执行
+  // 如果组件没有变化,则重新设置 props;   执行 
   if (comp && comp.constructor === vnode.tag) {
     // 重新设置 props 并渲染
     setComponentProps(comp, vnode.attrs);
@@ -88,6 +88,16 @@ function diffComponent(dom, vnode) {
     dom = comp.base;
   }
   return dom;
+}
+
+function unmountComponent(comp) {
+  removeNode(comp.base);
+}
+
+function removeNode(dom) {
+  if (dom && dom.parentNode) {
+    dom.parentNode.removeNode(dom);
+  }
 }
 
 function diffAttributes(dom, vnode) {

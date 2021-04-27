@@ -919,3 +919,61 @@ function diffChildren(dom, vchildren) {
 
 # 6. 异步 setState
 
+在 React 中，为了优化性能 `setState` 的操作是异步的，当我们在一个 for 循环中直行 setState，会出现以下情况：
+
+```js
+for (let i = 0; i < 5; i++) {
+    this.setState({
+        num: this.state.num + 1
+    });
+    console.log(this.state.num);
+}
+```
+
+输出：
+
+```js
+5
+5
+5
+5
+5
+```
+
+同时 `setState` 也支持传入一个函数，在该函数中，可以获取到上一次更新 state 后的状态（prevState）：
+
+```js
+for (let i = 0; i < 100; i++) {
+  this.setState((prevState)=>{
+    console.log(prevState.num);       
+    return {
+      num : prevState.num + 1
+    }
+  })  
+}
+```
+
+输出：
+
+```js
+0
+1
+2
+3
+4
+```
+
+我们了解了 `setState` 的具体表现后，再来探讨一下为什么 `setState` 要是一个异步操作，其是怎么优化的：
+
+当 react 进行 `setState` 操作时，会重新渲染组件，渲染组件会消耗大量的性能，为了减少性能损耗，react 会将 **当前同步队列** 中的所有 `setState` 操作都 **暂存在一个栈中**，但并不立即执行。
+
+在入栈时，react 会把同一个组件的 `setState` 操作进行合并，同时把要重新渲染的组件也放到一个
+
+
+
+通过以上的演示,我们要做两个事情
+
+1.  异步更新state,将短时间内的多个setState合并成一个
+2.  为了解决异步更新导致的问题,增加另一种形式的setSatet:接受一个函数作为参数,在函数中可以得到前一个状态并返回下一个状态
+
+## 6.1 合并
