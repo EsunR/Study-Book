@@ -1,5 +1,3 @@
-> 视频教程: https://www.bilibili.com/video/BV1cE411B7by?from=search&seid=5214127956231478250
-
 # 1. Parcel 安装与使用
 
 Parcel 是 Web 应用打包工具，适用于经验不同的开发者。它利用多核处理提供了极快的速度，并且不需要任何配置。
@@ -922,38 +920,58 @@ function diffChildren(dom, vchildren) {
 在 React 中，为了优化性能 `setState` 的操作是异步的，当我们在一个 for 循环中直行 setState，会出现以下情况：
 
 ```js
-for (let i = 0; i < 5; i++) {
-    this.setState({
-        num: this.state.num + 1
-    });
+constructor(props) {
+  super(props);
+  this.state = {
+    num: 0,
+  };
+}
+// ... ...
+componentDidMount() {
+  for (let i = 0; i < 5; i++) {
     console.log(this.state.num);
+    this.setState({
+      num: this.state.num + 1,
+    });
+  }
 }
 ```
 
-输出：
+输出结果始终为初始化的 state 值：
 
 ```js
-5
-5
-5
-5
-5
+0
+0
+0
+0
+0
+
+// 且最终 state.num 的值为 1
 ```
 
 同时 `setState` 也支持传入一个函数，在该函数中，可以获取到上一次更新 state 后的状态（prevState）：
 
 ```js
-for (let i = 0; i < 100; i++) {
-  this.setState((prevState)=>{
-    console.log(prevState.num);       
-    return {
-      num : prevState.num + 1
-    }
-  })  
+constructor(props) {
+  super(props);
+  this.state = {
+    num: 0,
+  };
+}
+// ... ...
+componentDidMount() {
+  for (let i = 0; i < 5; i++) {
+    this.setState((prevState)=>{
+      console.log(prevState.num);       
+      return {
+        num : prevState.num + 1
+      }
+    })  
+  }
 }
 ```
 
-输出：
+输出结果可以获取到每次 state 改变前的值：
 
 ```js
 0
@@ -961,19 +979,191 @@ for (let i = 0; i < 100; i++) {
 2
 3
 4
+
+// 且最终 state.num 的值为 5
 ```
 
-我们了解了 `setState` 的具体表现后，再来探讨一下为什么 `setState` 要是一个异步操作，其是怎么优化的：
+之所以会这样，是因为 `setState` 始终是一个异步的操作，此时在循环中取到的 state 都是在循环执行时获取到的组件 state。但是 `setState` 中如果传入一个函数，那么在函数中可以获取到上次组件更新的 prevState，也就是在传入函数执行时，组件最新的 state，这的确很神奇。
 
-当 react 进行 `setState` 操作时，会重新渲染组件，渲染组件会消耗大量的性能，为了减少性能损耗，react 会将 **当前同步队列** 中的所有 `setState` 操作都 **暂存在一个栈中**，但并不立即执行。
+那么知道的上述的具体表现后，我们再来探讨一下为什么 `setState` 要是一个异步操作，其是怎么优化的，其主要分如下几步：
 
-在入栈时，react 会把同一个组件的 `setState` 操作进行合并，同时把要重新渲染的组件也放到一个
+1. 当 react 进行 setState 操作时，会重新渲染组件，渲染组件会消耗大量的性能，为了减少性能损耗，react 会将 **当前同步任务队列** 中的所有 setState 操作都暂存在一个 **执行队列** 中，我们将其定为 `setStateQueue`，但并不立即执行。同时创建一个 **渲染队列**，将要改变 state 的组件全部存放在渲染队列中，同时 **合并渲染队列中重复的组件**；
+2. 等待一段时间过后，react 会将直行队列 `setStateQueue` 中的 setState 操作，但此时只会改组件的 state ，组件并没有直行实质性的渲染；
+3. 等 `setStateQueue` 队列执行完毕之后，开始对渲染队列 `renderQueue` 的组件直行渲染操作，这样就可以实现改变多个 state 但只渲染一次，从而优化性能。
 
+![整体流程](https://i.loli.net/2021/05/15/RUuTtpSdBAfiv74.jpg)
 
+## 6.1 创建 setStateQueue 与 renderQueue
 
-通过以上的演示,我们要做两个事情
+`setStateQueue` 负责存储该轮更新时执行的 setState 操作，`renderQueue` 负责存储在该轮更新后应该渲染的组件。我们要创建这两个队列，并创建加入队列的方法 `enqueueSetState(stateChange, component)`，并在组件更新 state 时调用该方法：
 
-1.  异步更新state,将短时间内的多个setState合并成一个
-2.  为了解决异步更新导致的问题,增加另一种形式的setSatet:接受一个函数作为参数,在函数中可以得到前一个状态并返回下一个状态
+```js
+// set_state_queue.js
 
-## 6.1 合并
+const setStateQueue = [];
+const renderQueue = [];
+
+export function enqueueSetState(stateChange, component) {
+  // 1. 将改变 state 的操作添加到 setStateQueue 中
+  setStateQueue.push({
+    stateChange,
+    component,
+  });
+
+  // 2. 将需要改变 state 并渲染的组件添加到 renderQueue 中
+  // 此时会直行一个去重操作，如果 renderQueue 里没有当前组件，才添加到队列中
+  let r = renderQueue.some((item) => {
+    return item === component;
+  });
+  if (!r) {
+    renderQueue.push(component);
+  }
+}
+```
+
+```js
+// component.js
+import { enqueueSetState } from "./set_state_queue";
+
+class Component {
+  constructor(props = {}) {
+    this.props = props;
+    this.state = {};
+  }
+  setState(stateChange) {
+    // 旧方法：每次更新 state 都直行渲染组件的操作
+    // Object.assign(this.state, stateChange);
+    // renderComponent(this);
+
+    // 新方法：每次更新 state 都调用 enqueueSetState 方法，并将 stateChange 与组件传入该方法，让其负责判断组件更新的时机
+    enqueueSetState(stateChange, this);
+  }
+}
+
+export default Component;
+```
+
+## 6.2 创建清空队列的方法
+
+假设我们已经等待了 **一定的时间**，到达了某一时刻，那么我们就要清空 setStateQueue 与 renderQueue 了。因此我们要创建一个清空队列的方法，将其命名为 flush：
+
+```js
+// set_state_queue.js
+
+/**
+ * 清空队列
+ */
+function flush() {
+  let item;
+  // 遍历state
+  while ((item = setStateQueue.shift())) {
+    const { stateChange, component } = item;
+    // 如果没有prevState,则将当前的state作为初始的prevState
+    if (!component.prevState) {
+      component.prevState = Object.assign({}, component.state);
+    }
+    // 如果stateChange是一个方法,也就是setState的第一种形式
+    if (typeof stateChange === "function") {
+      Object.assign(
+        component.state,
+        stateChange(component.prevState, component.props)
+      );
+    } else {
+      // 如果stateChange是一个对象,则直接合并到setState中
+      Object.assign(component.state, stateChange);
+    }
+    component.prevState = component.state;
+  }
+
+  // 遍历组件
+  let component;
+  while ((component = renderQueue.shift())) {
+    renderComponent(component);
+  }
+}
+```
+
+该清空队列的方法实际上就是实现了我们前面原理分析的第 2 与第 3 步操作：
+
+![](https://i.loli.net/2021/05/15/ZCkT1yIizLpEmND.jpg)
+
+## 6.3 寻找合适的更新时机
+
+前面我们一直在强调 setState 是一个异步操作，其原因就在这儿，我们虽然将所有的 setState 行为已经组件都存放在队列里了，但最重要是寻找到一个时间点去清空队列。这个时间点既不能太快（要后置于当前 JS 的同步任务），又不能太慢（保证让用户无感知）。
+
+最简单的我们就使用一个定时器来实现：
+
+```js
+export function enqueueSetState(stateChange, component) {
+  // 0. 如果setStateQueue的长度是0,也就是在上次flush执行之后第一次往队列里添加
+  if (setStateQueue.length === 0) {
+    setTimeout(() => {
+      flush();
+    }, 0);
+  }
+
+  // setStateQueue.push & renderQueue.push ... ...
+}
+```
+
+当更新队列为空时，我们开启定时器，由于定时器是一个异步任务，后面更新 setStateQueue 与 renderQueue 的操作会继续执行。同时需要添加一个判断队列是否为空时候才开启定时器，保证开启定时器的操作只在“一轮更新”的最开始直行，只要是在该轮直行的 enqueueSetState 操作都不会在开启定时器，保证了定时器的唯一性。
+
+当定时器到达时间阈值时，标志着该轮更新“到点了”，开始清空队列并执行渲染操作，后续再有更新 state 操作的话就会被延迟到“下一轮”更新中。
+
+![](https://i.loli.net/2021/05/15/EiIrR9UlcFAby5L.png)
+
+当然，使用定时器的方法并不是最优雅的，某些浏览器 `setTimeout` 的最小触发时间为 4ms，如果我们只想同步任务直行完成之后就直行组件更新，连 4ms 都不想等，或者说总是想要优先于主任务队列中的所有 `setTimeout` 行为的话，该怎么办呢？
+
+这时候就要利用到任务轮询中的 **微任务** 了，这也是微任务的应用点之一。我们都知道微任务属于异步任务，会延后于同步任务队列，但是又会优先于宏任务队列，而 `Promise.resolve().then()` 是一个最典型的微任务，那么我们只需要将 `setTimeout` 改成微任务就行了：
+
+```js
+export function enqueueSetState(stateChange, component) {
+  // 0. 如果setStateQueue的长度是0,也就是在上次flush执行之后第一次往队列里添加
+  if (setStateQueue.length === 0) {
+    return Promise.resolve().then(flush);
+  }
+
+  // setStateQueue.push & renderQueue.push ... ...
+}
+```
+
+这样的话，我们就不会跟其他的 setTimeout 行为发生冲突了，也可以利用这点来让某些行为在组件更新后发生，比如：
+
+```js
+class Home extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      num: 0,
+    };
+  }
+  // Handle
+  handleClick() {
+    this.setState({
+      num: this.state.num + 1,
+    });
+    setTimeout(() => {
+      // 利用 setTimeout 将打印行为延后到组件更新完成后直行
+      // 此时可以获取到按钮的最新文本内容
+      const btn = document.querySelector("#btn");
+      console.log("btn: ", btn.innerHTML);
+    }, 0);
+  }
+  render() {
+    return (
+      <button id="btn" onClick={this.handleClick.bind(this)}>
+        Click me! ({this.state.num})
+      </button>
+    );
+  }
+}
+```
+
+# 7. 参考
+
+本文主要参考如下视频与文章，以及 React 官网以及具体源码，结合一些个人理解而编写：
+
+-  [React 源码实现](https://www.bilibili.com/video/BV1cE411B7by?from=search&seid=5214127956231478250)
+-  [都快2021年了，你竟然还不知道React的JSX和diff算法？](https://juejin.cn/post/6869549410875867144#heading-23)
+
+> 配套源码：https://github.com/EsunR/Study-Book/tree/master/React/React%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90

@@ -1,3 +1,5 @@
+import { renderComponent } from "../react-dom/index";
+
 /**
  * 1. 异步更新 state 短时间内把多个 setState 合并成一个（队列：先进先出）
  * 2. 一段时间之后，循环清空队列，渲染组件
@@ -15,7 +17,7 @@ export function enqueueSetState(stateChange, component) {
     defer(flush);
   }
 
-  // 1. 短时间内，合并多个 state
+  // 1. 将改变 state 的操作添加到 setStateQueue 中
   setStateQueue.push({
     stateChange,
     component,
@@ -30,7 +32,9 @@ export function enqueueSetState(stateChange, component) {
   }
 }
 
-// 一段时间之后
+/**
+ * 清空队列
+ */
 function flush() {
   let item;
   // 遍历state
@@ -54,6 +58,7 @@ function flush() {
   }
 
   // 遍历组件
+  let component;
   while ((component = renderQueue.shift())) {
     renderComponent(component);
   }

@@ -22,13 +22,15 @@ class Home extends React.Component {
     console.log("componentWillMount");
   }
   componentDidMount() {
-    console.log("componentDidMount");
-    for (let i = 0; i < 10; i++) {
-      this.setState({
-        num: this.state.num + 1,
-      });
-    }
-    console.log(this.state.num);
+    // console.log("componentDidMount");
+    // for (let i = 0; i < 10; i++) {
+    //   this.setState((prevState) => {
+    //     return {
+    //       num: prevState.num + 1,
+    //     };
+    //   });
+    //   console.log(this.state.num);
+    // }
   }
   componentWillUpdate(nextProps, nextState) {
     console.log("componentWillUpdate");
@@ -46,13 +48,17 @@ class Home extends React.Component {
     this.setState({
       num: this.state.num + 1,
     });
+    setTimeout(() => {
+      const btn = document.querySelector("#btn");
+      console.log("btn: ", btn.innerHTML);
+    }, 0);
   }
   render() {
     return (
       <div id="home">
         <h1>{this.props.title}</h1>
         <span>hello, react!</span>
-        <button onClick={this.handleClick.bind(this)}>
+        <button id="btn" onClick={this.handleClick.bind(this)}>
           Click me! ({this.state.num})
         </button>
       </div>
