@@ -13,7 +13,7 @@ import TestHome from '@/pages/test';
 import SvgTest from '@/pages/test/svg-test';
 import ChartKit from '@/pages/test/chart-kit';
 import NativeModule from '@/pages/test/native-module';
-import RNBaiduMtj from 'react-native-baidu-mtj';
+// import RNBaiduMtj from 'react-native-baidu-mtj';
 import Camera from '@/pages/test/camera';
 import Photo from '@/pages/test/photo';
 import Login from '@/pages/test/login';
@@ -69,8 +69,8 @@ const App = () => {
   );
 
   useEffect(() => {
-    RNBaiduMtj.start();
-    RNBaiduMtj.setDebugOn(true);
+    // RNBaiduMtj.start();
+    // RNBaiduMtj.setDebugOn(true);
   }, []);
 
   return (

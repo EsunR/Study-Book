@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Button} from 'react-native';
 import CustomToast from './components/CustomToast';
-import RNBaiduMtj from 'react-native-baidu-mtj';
+// import RNBaiduMtj from 'react-native-baidu-mtj';
 
 const NativeModule: React.FC<any> = () => {
   return (
@@ -16,15 +16,15 @@ const NativeModule: React.FC<any> = () => {
       <Button
         title="开始统计"
         onPress={() => {
-          RNBaiduMtj.start();
-          RNBaiduMtj.setDebug(true);
+          // RNBaiduMtj.start();
+          // RNBaiduMtj.setDebug(true);
         }}
       />
 
       <Button
         title="统计事件"
         onPress={() => {
-          RNBaiduMtj.onEvent('test', '牛逼');
+          // RNBaiduMtj.onEvent('test', '牛逼');
         }}
       />
     </View>
