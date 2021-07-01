@@ -1,3 +1,7 @@
 include ':app'
+include ':react-native-baidu-mtj'
+project(':react-native-baidu-mtj').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-baidu-mtj/android')
+include ':react-native-baidu-mtj'
+project(':react-native-baidu-mtj').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-baidu-mtj/android')
 rootProject.name = 'ReactNativeDemo'
 apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)

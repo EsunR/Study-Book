@@ -1,7 +1,8 @@
-import React from 'react';
-import {View, Button} from 'react-native';
-import CustomToast from './components/CustomToast';
 // import RNBaiduMtj from 'react-native-baidu-mtj';
+import React from 'react';
+import {Button, NativeModules, View} from 'react-native';
+import CustomToast from './components/CustomToast';
+import RNBaiduMtj from 'react-native-baidu-mtj';
 
 const NativeModule: React.FC<any> = () => {
   return (
@@ -16,15 +17,33 @@ const NativeModule: React.FC<any> = () => {
       <Button
         title="开始统计"
         onPress={() => {
-          // RNBaiduMtj.start();
-          // RNBaiduMtj.setDebug(true);
+          RNBaiduMtj.start();
+          RNBaiduMtj.setDebugOn(true);
         }}
       />
 
       <Button
         title="统计事件"
         onPress={() => {
-          // RNBaiduMtj.onEvent('test', '牛逼');
+          RNBaiduMtj.onEvent('test', '牛逼');
+        }}
+      />
+
+      <Button
+        title="设置用户属性"
+        onPress={() => {
+          RNBaiduMtj.setUserProperty({
+            name: '张三',
+            age: '18',
+          });
+        }}
+      />
+
+      <Button
+        title="ios module"
+        onPress={() => {
+          const CalendarManager = NativeModules.CalendarManager;
+          CalendarManager.addEvent('Birthday Party', '4 Privet Drive, Surrey');
         }}
       />
     </View>

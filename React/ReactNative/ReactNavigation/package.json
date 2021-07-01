@@ -17,7 +17,7 @@
     "@types/react-native": "^0.63.1",
     "react": "16.13.1",
     "react-native": "0.63.1",
-    "react-native-baidu-mtj": "^1.0.0",
+    "react-native-baidu-mtj": "^2.0.2",
     "react-native-camera": "^3.37.0",
     "react-native-chart-kit": "^6.4.1",
     "react-native-gesture-handler": "^1.6.1",
