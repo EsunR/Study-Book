@@ -18,6 +18,8 @@ import Camera from '@/pages/test/camera';
 import Photo from '@/pages/test/photo';
 import Login from '@/pages/test/login';
 import WebViewTest from '@/pages/test/webview';
+import UITestHome from '@/pages/ui-test';
+import UITestForm from '@/pages/ui-test/form';
 
 const App = () => {
   const Stack = createStackNavigator();
@@ -68,6 +70,13 @@ const App = () => {
     </Stack.Navigator>
   );
 
+  const UITestStack = () => (
+    <Stack.Navigator initialRouteName="UITestHome">
+      <Stack.Screen name="UITestHome" component={UITestHome} />
+      <Stack.Screen name="UITestForm" component={UITestForm} />
+    </Stack.Navigator>
+  );
+
   useEffect(() => {
     // RNBaiduMtj.start();
     // RNBaiduMtj.setDebugOn(true);
@@ -79,6 +88,7 @@ const App = () => {
         <Drawer.Screen name="Movie" component={MovieStack} />
         <Drawer.Screen name="User" component={UserStack} />
         <Drawer.Screen name="Test" component={TestStack} />
+        <Drawer.Screen name="UITest" component={UITestStack} />
       </Drawer.Navigator>
     </NavigationContainer>
   );
