@@ -11,7 +11,7 @@
 var minArray = function (numbers) {
   let low = 0;
   let high = numbers.length - 1;
-  // 知道 low 和 high 的指向重合才停止循环
+  // 直到 low 和 high 的指向重合才停止循环
   while (low < high) {
     // 中间索引向下取整，防止 [1,0] 这种情况，low = pivot + 1 时直接越位
     const pivot = low + Math.floor((high - low) / 2);
@@ -21,7 +21,7 @@ var minArray = function (numbers) {
       low = pivot + 1;
     } else {
       // 当中间元素与前后指向的元素相等时，无法判断其归属序列，那就将 high 的指针向前移动
-      // 直到 pivot 指针指到最小的元素，high 指针移动到改元素上
+      // 直到 pivot 指针指到最小的元素，high 指针移动到该元素上
       high -= 1;
     }
   }

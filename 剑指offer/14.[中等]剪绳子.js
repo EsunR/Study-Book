@@ -4,7 +4,7 @@
  */
 
 /**
- * f(n) = (f(1)*f(n-1), f(2)*f(n-2), ... , f(Math.floor(n/2))*f(Math.ceil(n/2)))
+ * f(n) = Max(f(1)*f(n-1), f(2)*f(n-2), ... , f(Math.floor(n/2))*f(Math.ceil(n/2)))
  */
 
 /**

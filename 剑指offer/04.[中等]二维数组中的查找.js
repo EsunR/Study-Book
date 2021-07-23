@@ -16,7 +16,7 @@ var findNumberIn2DArray = function (matrix, target) {
   let currentRowIndex = 0;
   let currentColIndex = matrixColCount - 1;
   while (currentColIndex >= 0 && currentRowIndex <= matrixRowCount - 1) {
-    let current = matrix[currentRowIndex][currentColIndex]; // 获取当前左上角的元素
+    let current = matrix[currentRowIndex][currentColIndex]; // 获取当前右上角的元素
     if (current === target) {
       return true;
     }
