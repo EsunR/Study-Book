@@ -141,6 +141,14 @@
   resolved "https://registry.nlark.com/@vue/shared/download/@vue/shared-3.2.6.tgz"
   integrity sha1-LCK66I/it7WfpoqcnEzWC64sF5Q=
 
+anymatch@~3.1.2:
+  version "3.1.2"
+  resolved "https://registry.npm.taobao.org/anymatch/download/anymatch-3.1.2.tgz#c0557c096af32f106198f4f4e2a383537e378716"
+  integrity sha1-wFV8CWrzLxBhmPT04qODU343hxY=
+  dependencies:
+    normalize-path "^3.0.0"
+    picomatch "^2.0.4"
+
 async-validator@^3.4.0:
   version "3.5.2"
   resolved "https://registry.nlark.com/async-validator/download/async-validator-3.5.2.tgz"
@@ -168,6 +176,11 @@ big.js@^5.2.2:
   resolved "https://registry.nlark.com/big.js/download/big.js-5.2.2.tgz"
   integrity sha1-ZfCvOC9Xi83HQr2cKB6cstd2gyg=
 
+binary-extensions@^2.0.0:
+  version "2.2.0"
+  resolved "https://registry.nlark.com/binary-extensions/download/binary-extensions-2.2.0.tgz#75f502eeaf9ffde42fc98829645be4ea76bd9e2d"
+  integrity sha1-dfUC7q+f/eQvyYgpZFvk6na9ni0=
+
 binary@~0.3.0:
   version "0.3.0"
   resolved "https://registry.npm.taobao.org/binary/download/binary-0.3.0.tgz"
@@ -194,6 +207,13 @@ brace-expansion@^1.1.7:
     balanced-match "^1.0.0"
     concat-map "0.0.1"
 
+braces@~3.0.2:
+  version "3.0.2"
+  resolved "https://registry.nlark.com/braces/download/braces-3.0.2.tgz#3454e1a462ee8d599e236df336cd9ea4f8afe107"
+  integrity sha1-NFThpGLujVmeI23zNs2epPiv4Qc=
+  dependencies:
+    fill-range "^7.0.1"
+
 buffer-indexof-polyfill@~1.0.0:
   version "1.0.2"
   resolved "https://registry.nlark.com/buffer-indexof-polyfill/download/buffer-indexof-polyfill-1.0.2.tgz"
@@ -210,6 +230,21 @@ chainsaw@~0.1.0:
   integrity sha1-XqtQsor+WAdNDVgpE4iCi15fvJg=
   dependencies:
     traverse ">=0.3.0 <0.4"
+
+"chokidar@>=3.0.0 <4.0.0":
+  version "3.5.2"
+  resolved "https://registry.nlark.com/chokidar/download/chokidar-3.5.2.tgz#dba3976fcadb016f66fd365021d91600d01c1e75"
+  integrity sha1-26OXb8rbAW9m/TZQIdkWANAcHnU=
+  dependencies:
+    anymatch "~3.1.2"
+    braces "~3.0.2"
+    glob-parent "~5.1.2"
+    is-binary-path "~2.1.0"
+    is-glob "~4.0.1"
+    normalize-path "~3.0.0"
+    readdirp "~3.6.0"
+  optionalDependencies:
+    fsevents "~2.3.2"
 
 colorette@^1.2.2:
   version "1.3.0"
@@ -284,6 +319,13 @@ estree-walker@^2.0.2:
   resolved "https://registry.npm.taobao.org/estree-walker/download/estree-walker-2.0.2.tgz"
   integrity sha1-UvAQF4wqTBF6d1fP6UKtt9LaTKw=
 
+fill-range@^7.0.1:
+  version "7.0.1"
+  resolved "https://registry.nlark.com/fill-range/download/fill-range-7.0.1.tgz#1919a6a7c75fe38b2c7c77e5198535da9acdda40"
+  integrity sha1-GRmmp8df44ssfHflGYU12prN2kA=
+  dependencies:
+    to-regex-range "^5.0.1"
+
 follow-redirects@^1.10.0:
   version "1.14.2"
   resolved "https://registry.nlark.com/follow-redirects/download/follow-redirects-1.14.2.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.nlark.com%2Ffollow-redirects%2Fdownload%2Ffollow-redirects-1.14.2.tgz"
@@ -320,6 +362,13 @@ generic-names@^2.0.1:
   integrity sha1-+KN46tLMqno08DF7BVVIMq5BuHI=
   dependencies:
     loader-utils "^1.1.0"
+
+glob-parent@~5.1.2:
+  version "5.1.2"
+  resolved "https://registry.nlark.com/glob-parent/download/glob-parent-5.1.2.tgz?cache=0&sync_timestamp=1626760165717&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fglob-parent%2Fdownload%2Fglob-parent-5.1.2.tgz#869832c58034fe68a4093c17dc15e8340d8401c4"
+  integrity sha1-hpgyxYA0/mikCTwX3BXoNA2EAcQ=
+  dependencies:
+    is-glob "^4.0.1"
 
 glob@^7.1.3:
   version "7.1.7"
@@ -373,12 +422,36 @@ inherits@2, inherits@~2.0.0, inherits@~2.0.3:
   resolved "https://registry.nlark.com/inherits/download/inherits-2.0.4.tgz"
   integrity sha1-D6LGT5MpF8NDOg3tVTY6rjdBa3w=
 
+is-binary-path@~2.1.0:
+  version "2.1.0"
+  resolved "https://registry.nlark.com/is-binary-path/download/is-binary-path-2.1.0.tgz#ea1f7f3b80f064236e83470f86c09c254fb45b09"
+  integrity sha1-6h9/O4DwZCNug0cPhsCcJU+0Wwk=
+  dependencies:
+    binary-extensions "^2.0.0"
+
 is-core-module@^2.2.0:
   version "2.6.0"
   resolved "https://registry.nlark.com/is-core-module/download/is-core-module-2.6.0.tgz"
   integrity sha1-11U7JSb+Wbkro+QMjfdX7Ipwnhk=
   dependencies:
     has "^1.0.3"
+
+is-extglob@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.nlark.com/is-extglob/download/is-extglob-2.1.1.tgz#a88c02535791f02ed37c76a1b9ea9773c833f8c2"
+  integrity sha1-qIwCU1eR8C7TfHahueqXc8gz+MI=
+
+is-glob@^4.0.1, is-glob@~4.0.1:
+  version "4.0.1"
+  resolved "https://registry.nlark.com/is-glob/download/is-glob-4.0.1.tgz#7567dbe9f2f5e2467bc77ab83c4a29482407a5dc"
+  integrity sha1-dWfb6fL14kZ7x3q4PEopSCQHpdw=
+  dependencies:
+    is-extglob "^2.1.1"
+
+is-number@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.npm.taobao.org/is-number/download/is-number-7.0.0.tgz#7535345b896734d5f80c4d06c50955527a14f12b"
+  integrity sha1-dTU0W4lnNNX4DE0GxQlVUnoU8Ss=
 
 isarray@~1.0.0:
   version "1.0.0"
@@ -466,6 +539,11 @@ nanoid@^3.1.23:
   resolved "https://registry.nlark.com/nanoid/download/nanoid-3.1.25.tgz?cache=0&sync_timestamp=1628771965808&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fnanoid%2Fdownload%2Fnanoid-3.1.25.tgz"
   integrity sha1-CcoydHwOVD8OGBS303k0d/nI4VI=
 
+normalize-path@^3.0.0, normalize-path@~3.0.0:
+  version "3.0.0"
+  resolved "https://registry.nlark.com/normalize-path/download/normalize-path-3.0.0.tgz#0dcd69ff23a1c9b11fd0978316644a0388216a65"
+  integrity sha1-Dc1p/yOhybEf0JeDFmRKA4ghamU=
+
 normalize-wheel@^1.0.1:
   version "1.0.1"
   resolved "https://registry.npm.taobao.org/normalize-wheel/download/normalize-wheel-1.0.1.tgz"
@@ -487,6 +565,11 @@ path-parse@^1.0.6:
   version "1.0.7"
   resolved "https://registry.nlark.com/path-parse/download/path-parse-1.0.7.tgz?cache=0&sync_timestamp=1621947892143&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fpath-parse%2Fdownload%2Fpath-parse-1.0.7.tgz"
   integrity sha1-+8EUtgykKzDZ2vWFjkvWi77bZzU=
+
+picomatch@^2.0.4, picomatch@^2.2.1:
+  version "2.3.0"
+  resolved "https://registry.nlark.com/picomatch/download/picomatch-2.3.0.tgz#f1f061de8f6a4bf022892e2d128234fb98302972"
+  integrity sha1-8fBh3o9qS/AiiS4tEoI0+5gwKXI=
 
 postcss-modules-extract-imports@^3.0.0:
   version "3.0.0"
@@ -570,6 +653,13 @@ readable-stream@^2.0.2, readable-stream@~2.3.6:
     string_decoder "~1.1.1"
     util-deprecate "~1.0.1"
 
+readdirp@~3.6.0:
+  version "3.6.0"
+  resolved "https://registry.nlark.com/readdirp/download/readdirp-3.6.0.tgz#74a370bd857116e245b29cc97340cd431a02a6c7"
+  integrity sha1-dKNwvYVxFuJFspzJc0DNQxoCpsc=
+  dependencies:
+    picomatch "^2.2.1"
+
 resize-observer-polyfill@^1.5.1:
   version "1.5.1"
   resolved "https://registry.nlark.com/resize-observer-polyfill/download/resize-observer-polyfill-1.5.1.tgz?cache=0&sync_timestamp=1618910925988&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fresize-observer-polyfill%2Fdownload%2Fresize-observer-polyfill-1.5.1.tgz"
@@ -601,6 +691,13 @@ safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.2"
   resolved "https://registry.npm.taobao.org/safe-buffer/download/safe-buffer-5.1.2.tgz?cache=0&sync_timestamp=1598277415399&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fsafe-buffer%2Fdownload%2Fsafe-buffer-5.1.2.tgz"
   integrity sha1-mR7GnSluAxN0fVm9/St0XDX4go0=
+
+sass@^1.39.0:
+  version "1.39.0"
+  resolved "https://registry.nlark.com/sass/download/sass-1.39.0.tgz?cache=0&sync_timestamp=1630545606222&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fsass%2Fdownload%2Fsass-1.39.0.tgz#6c64695d1c437767c8f1a4e471288e831f81d035"
+  integrity sha1-bGRpXRxDd2fI8aTkcSiOgx+B0DU=
+  dependencies:
+    chokidar ">=3.0.0 <4.0.0"
 
 setimmediate@~1.0.4:
   version "1.0.5"
@@ -638,6 +735,13 @@ to-fast-properties@^2.0.0:
   version "2.0.0"
   resolved "https://registry.nlark.com/to-fast-properties/download/to-fast-properties-2.0.0.tgz"
   integrity sha1-3F5pjL0HkmW8c+A3doGk5Og/YW4=
+
+to-regex-range@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.nlark.com/to-regex-range/download/to-regex-range-5.0.1.tgz#1648c44aae7c8d988a326018ed72f5b4dd0392e4"
+  integrity sha1-FkjESq58jZiKMmAY7XL1tN0DkuQ=
+  dependencies:
+    is-number "^7.0.0"
 
 "traverse@>=0.3.0 <0.4":
   version "0.3.9"
