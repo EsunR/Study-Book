@@ -1,17 +1,18 @@
+import '@/styles/index.scss'
+import App from "./App.vue";
 import axios from "axios";
 import { createApp } from "vue";
-import App from "./App.vue";
-import router from "./router";
-import ElementPlus from "element-plus";
-import "@/styles/index.scss";
+import { initElementPlus } from "@/plugin/element-plus";
+import router from "@/router";
 
 const app = createApp(App);
+
+// Plugin
+initElementPlus(app);
 
 // Global Properties
 app.config.globalProperties.$http = axios;
 
 // Use
-app.use(ElementPlus);
 app.use(router);
-
 app.mount("#app");

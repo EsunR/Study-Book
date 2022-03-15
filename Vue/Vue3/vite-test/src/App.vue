@@ -1,19 +1,29 @@
 <template>
-  <div id="app">
-    <router-view />
-  </div>
+  <ElRow>
+    <ElCol :span="4" class="app-nav">
+      <SideNav />
+    </ElCol>
+    <ElCol :span="20" class="app-main">
+      <router-view></router-view>
+    </ElCol>
+  </ElRow>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { RouterView } from "vue-router";
 
 export default defineComponent({
   name: "App",
-  components: {
-    RouterView,
-  },
 });
 </script>
 
-<style></style>
+<style lang="scss" scoped>
+.app-nav {
+  height: 100vh;
+}
+.app-main {
+  padding: 20px;
+  height: 100vh;
+  overflow-y: auto;
+}
+</style>

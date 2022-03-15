@@ -5,11 +5,3 @@ declare module "@vue/runtime-core" {
     $http: typeof axios;
   }
 }
-
-declare module "vue-router" {
-  interface RouteMeta {
-    cnName?: string;
-    icon?: string;
-    hideInNav?: boolean;
-  }
-}

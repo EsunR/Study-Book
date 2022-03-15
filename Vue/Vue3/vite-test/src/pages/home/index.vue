@@ -1,8 +1,7 @@
 <template>
   <h1 class="title">Home</h1>
-  <div class="box"></div>
   <el-row>
-    <el-button>默认按钮</el-button>
+    <el-button @click="handleButtonClick">默认按钮</el-button>
     <el-button type="primary">主要按钮</el-button>
     <el-button type="success">成功按钮</el-button>
     <el-button type="info">信息按钮</el-button>
@@ -12,10 +11,24 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "@vue/runtime-core";
+import { defineComponent, onMounted } from "vue";
+import { ElMessage } from "element-plus";
 
 export default defineComponent({
   name: "Home",
+  setup() {
+    const handleButtonClick = () => {
+      ElMessage.success({type: "success", message: "点击按钮！"})
+    };
+
+    onMounted(()=>{
+      console.log("on mounted");
+    })
+
+    return {
+      handleButtonClick
+    }
+  },
 });
 </script>
 
