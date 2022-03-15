@@ -3,9 +3,7 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
 import ElementPlus from "element-plus";
-// import "@/styles/component.scss";
-import "@/styles/custom-component.scss";
-import "@/styles/element-variables.scss";
+import "@/styles/index.scss";
 
 const app = createApp(App);
 
