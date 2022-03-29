@@ -13,7 +13,7 @@
       "dom"
     ],
     "allowJs": true,
-    "baseUrl": ".",
+    "baseUrl": "./",
     "paths": {
       "@/*": [
         "src/*"
@@ -26,6 +26,6 @@
     "src/**/*.tsx",
     "src/**/*.vue",
     "./auto-imports.d.ts",
-    "./components.d.ts"
+    "./components.d.ts",
   ]
 }

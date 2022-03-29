@@ -62,7 +62,6 @@ export default defineComponent({
           const belongTarget = result.find((_item) => _item.name === belong);
           const basePath = ("/" + item.path.split("/")[1]) as string;
           item.path = item.path.replace(basePath + '/', "");
-          console.log('item: ', item);
           if (belongTarget) {
             belongTarget.children?.push(item);
           } else {

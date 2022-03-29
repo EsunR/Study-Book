@@ -21,4 +21,9 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    proxy: {
+      '/cloudwarefs-service': 'http://bj-test-cce-rpc.gw-k8s-aff.baidu-int.com'
+    }
+  }
 });

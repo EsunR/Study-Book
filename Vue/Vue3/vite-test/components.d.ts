@@ -6,10 +6,16 @@ declare module 'vue' {
   export interface GlobalComponents {
     ElButton: typeof import('element-plus/es')['ElButton']
     ElCol: typeof import('element-plus/es')['ElCol']
+    ElDivider: typeof import('element-plus/es')['ElDivider']
+    ElIcon: typeof import('element-plus/es')['ElIcon']
+    ElInput: typeof import('element-plus/es')['ElInput']
     ElMenu: typeof import('element-plus/es')['ElMenu']
     ElMenuItem: typeof import('element-plus/es')['ElMenuItem']
     ElRow: typeof import('element-plus/es')['ElRow']
     ElSubMenu: typeof import('element-plus/es')['ElSubMenu']
+    ElUpload: typeof import('element-plus/es')['ElUpload']
+    Layout: typeof import('./src/components/Layout/index.vue')['default']
+    MenuItem: typeof import('./src/components/Layout/SideNav/components/MenuItem.vue')['default']
     SideNav: typeof import('./src/components/SideNav/index.vue')['default']
   }
 }
