@@ -72,17 +72,24 @@ export class NestApplication {
         next: ExpressNextFunction
     ) {
         // 获取参数的元数据
-        const paramsMetaData = Reflect.getMetadata(
-            "params",
-            instance,
-            methodName
-        );
+        const paramsMetaData =
+            Reflect.getMetadata("params", instance, methodName) || [];
         return paramsMetaData.map((paramMetaData) => {
-            const { key } = paramMetaData;
+            const { key, data } = paramMetaData;
             switch (key) {
                 case "Request":
                 case "Req":
                     return req;
+                case "Query":
+                    return data ? req.query[data] : req.query;
+                case "Headers":
+                    return data ? req.headers[data] : req.headers;
+                case "Session":
+                    return data ? req.session[data] : req.session;
+                case "Ip":
+                    return req.ip;
+                case "Param":
+                    return data ? req.params[data] : req.params;
                 default:
                     null;
             }
@@ -91,11 +98,16 @@ export class NestApplication {
 
     // 启动服务
     async listen(port: number) {
+        await this.init();
         this.app.listen(port, () => {
             Logger.log(
                 `Server is running on http://localhost:${port}`,
                 "NestApplication"
             );
         });
+    }
+
+    use(middleware) {
+        this.app.use(middleware);
     }
 }

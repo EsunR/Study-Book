@@ -1,7 +1,7 @@
 import "reflect-metadata";
 
 export const createParamDecorator = (key: string) => {
-    return () =>
+    return (data?: any) =>
         /**
          * @param target 控制器原型
          * @param propertyKey 方法名
@@ -12,7 +12,7 @@ export const createParamDecorator = (key: string) => {
             // 属性名是 params: handleRequest，值是一个数组
             const existingParameters =
                 Reflect.getMetadata("params", target, propertyKey) || [];
-            existingParameters[parameterIndex] = { parameterIndex, key };
+            existingParameters[parameterIndex] = { parameterIndex, key, data };
             Reflect.defineMetadata(
                 "params",
                 existingParameters,
@@ -25,3 +25,13 @@ export const createParamDecorator = (key: string) => {
 export const Request = createParamDecorator("Request");
 
 export const Req = Request;
+
+export const Query = createParamDecorator("Query");
+
+export const Headers = createParamDecorator("Headers");
+
+export const Session = createParamDecorator("Session");
+
+export const Ip = createParamDecorator("Ip");
+
+export const Param = createParamDecorator("Param");
