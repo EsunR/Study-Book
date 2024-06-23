@@ -6,7 +6,7 @@
         "experimentalDecorators": true,
         "baseUrl": "./",
         "paths": {
-            "@nestjs/*": ["./packages/day02/src/@nestjs/*"]
+            "@nestjs/*": ["./src/@nestjs/*"]
         }
     }
 }

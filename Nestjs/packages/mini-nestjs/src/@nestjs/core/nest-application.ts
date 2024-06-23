@@ -77,18 +77,16 @@ export class NestApplication {
             instance,
             methodName
         );
-        return paramsMetaData
-            .sort((a, b) => a.parameterIndex - b.parameterIndex)
-            .map((paramMetaData) => {
-                const { key } = paramMetaData;
-                switch (key) {
-                    case "Request":
-                    case "Req":
-                        return req;
-                    default:
-                        null;
-                }
-            });
+        return paramsMetaData.map((paramMetaData) => {
+            const { key } = paramMetaData;
+            switch (key) {
+                case "Request":
+                case "Req":
+                    return req;
+                default:
+                    null;
+            }
+        });
     }
 
     // 启动服务

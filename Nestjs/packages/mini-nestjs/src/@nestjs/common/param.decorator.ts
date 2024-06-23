@@ -12,7 +12,7 @@ export const createParamDecorator = (key: string) => {
             // 属性名是 params: handleRequest，值是一个数组
             const existingParameters =
                 Reflect.getMetadata("params", target, propertyKey) || [];
-            existingParameters.push({ parameterIndex, key });
+            existingParameters[parameterIndex] = { parameterIndex, key };
             Reflect.defineMetadata(
                 "params",
                 existingParameters,
