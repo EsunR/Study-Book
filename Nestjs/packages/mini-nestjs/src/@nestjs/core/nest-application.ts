@@ -12,7 +12,10 @@ export class NestApplication {
     // 在内部私有化一个 Express 实例
     private readonly app: Express = express();
 
-    constructor(protected readonly module) {}
+    constructor(protected readonly module) {
+        this.app.use(express.json()); // 解析 application/json
+        this.app.use(express.urlencoded({ extended: true })); // 解析 application/x-www-form-urlencoded
+    }
 
     // 初始化工作
     async init() {
@@ -52,7 +55,17 @@ export class NestApplication {
                             next
                         );
                         const result = method.call(controller, ...args);
-                        res.send(result);
+                        const responseMetaData = this.getResponseMetaData(
+                            controller,
+                            methodName
+                        );
+                        // 如果使用了 @Response 装饰器，则不自动发送响应
+                        if (
+                            !responseMetaData ||
+                            responseMetaData?.data?.passthrough
+                        ) {
+                            res.send(result);
+                        }
                     }
                 );
                 Logger.log(
@@ -90,10 +103,25 @@ export class NestApplication {
                     return req.ip;
                 case "Param":
                     return data ? req.params[data] : req.params;
+                case "Body":
+                    return data ? req.body[data] : req.body;
+
+                case "Response":
+                case "Res":
+                    return res;
                 default:
                     null;
             }
         });
+    }
+
+    private getResponseMetaData(instance: any, methodName: string) {
+        const paramsMetaData =
+            Reflect.getMetadata("params", instance, methodName) ?? [];
+        return paramsMetaData.find(
+            (paramMetaData) =>
+                paramMetaData.key === "Response" || paramMetaData.key === "Res"
+        );
     }
 
     // 启动服务

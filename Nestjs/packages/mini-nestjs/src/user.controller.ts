@@ -1,6 +1,7 @@
 import {
     Controller,
     Get,
+    Post,
     Req,
     Request,
     Query,
@@ -8,8 +9,13 @@ import {
     Session,
     Ip,
     Param,
+    Body,
+    Res,
 } from "@nestjs/common";
-import { Request as ExpressRequest } from "express";
+import {
+    Request as ExpressRequest,
+    Response as ExpressResponse,
+} from "express";
 
 @Controller("user")
 export class UserController {
@@ -76,5 +82,23 @@ export class UserController {
     @Get("star/ab*de")
     handleWildcard() {
         return "handleWildcard";
+    }
+
+    @Post("create")
+    createUser(@Body() createUserDto, @Body("username") username: string) {
+        console.log("createUserDto", createUserDto);
+        console.log("username", username);
+        return "user created";
+    }
+
+    @Get("response")
+    response(@Res() res: ExpressResponse) {
+        res.send("response");
+    }
+
+    @Get("passthrough")
+    passthrough(@Res({ passthrough: true }) res: ExpressResponse) {
+        res.setHeader("key", "value");
+        return "passthrough";
     }
 }

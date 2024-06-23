@@ -14,3 +14,15 @@ export function Get(path: string = ""): MethodDecorator {
         Reflect.defineMetadata("method", "GET", descriptor.value);
     };
 }
+
+export function Post(path: string = ""): MethodDecorator {
+    return (
+        target: any,
+        propertyKey: string | symbol,
+        descriptor: PropertyDescriptor
+    ) => {
+        // descriptor.value 就是所装饰的方法
+        Reflect.defineMetadata("path", path, descriptor.value);
+        Reflect.defineMetadata("method", "POST", descriptor.value);
+    };
+}
