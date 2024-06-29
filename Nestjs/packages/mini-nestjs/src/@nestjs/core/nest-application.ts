@@ -17,7 +17,9 @@ export class NestApplication {
         this.app.use(express.urlencoded({ extended: true })); // 解析 application/x-www-form-urlencoded
     }
 
-    // 初始化工作
+    /**
+     * 初始化工作
+     */
     async init() {
         const controllers =
             Reflect.getMetadata("controllers", this.module) || [];
@@ -34,10 +36,20 @@ export class NestApplication {
             )) {
                 // 获取原型上的方法
                 const method = controllerPrototype[methodName];
+
+                // 获取方法上的元数据
                 const httpMethod = Reflect.getMetadata("method", method);
-                // 如果没有配置路由装饰器，则跳过
                 if (!httpMethod) continue;
                 const pathMetadata = Reflect.getMetadata("path", method);
+                const redirectUrl = Reflect.getMetadata("redirectUrl", method);
+                const redirectStatusCode = Reflect.getMetadata(
+                    "redirectStatusCode",
+                    method
+                );
+                const statusCode = Reflect.getMetadata("statusCode", method);
+                const headers = Reflect.getMetadata("headers", method) || [];
+
+                // 拼接路由，执行路由的时候会执行对应的方法
                 const routePath = path.posix.join("/", prefix, pathMetadata);
                 this.app[httpMethod.toLowerCase()](
                     routePath,
@@ -55,15 +67,43 @@ export class NestApplication {
                             next
                         );
                         const result = method.call(controller, ...args);
+
+                        // 如果需要重定向，直接定向到指定的 url
+                        if (result?.url) {
+                            return res.redirect(
+                                result?.statusCode ?? 302,
+                                result.url
+                            );
+                        }
+                        if (redirectUrl) {
+                            return res.redirect(
+                                redirectStatusCode,
+                                redirectUrl
+                            );
+                        }
+
+                        // 是否指定了状态码
+                        if (statusCode) {
+                            res.statusCode = statusCode;
+                        } else if (httpMethod === "POST") {
+                            // POST 请求默认状态码是 201
+                            res.statusCode = 201;
+                        }
+
+                        // 判断是否使用了 @Response、@next 装饰器
                         const responseMetaData = this.getResponseMetaData(
                             controller,
                             methodName
                         );
                         // 如果使用了 @Response 装饰器，则不自动发送响应
+                        // 但是如果开启了 pathsthrough，则还是会自动发送响应
                         if (
                             !responseMetaData ||
                             responseMetaData?.data?.passthrough
                         ) {
+                            headers.forEach(({ name, value }) => {
+                                res.setHeader(name, value);
+                            });
                             res.send(result);
                         }
                     }
@@ -87,8 +127,16 @@ export class NestApplication {
         // 获取参数的元数据
         const paramsMetaData =
             Reflect.getMetadata("params", instance, methodName) || [];
+        // 构建上下文
+        const ctx = {
+            switchToHttp: () => ({
+                getRequest: () => req,
+                getResponse: () => res,
+                getNext: () => next,
+            }),
+        };
         return paramsMetaData.map((paramMetaData) => {
-            const { key, data } = paramMetaData;
+            const { key, data, factory } = paramMetaData;
             switch (key) {
                 case "Request":
                 case "Req":
@@ -109,22 +157,36 @@ export class NestApplication {
                 case "Response":
                 case "Res":
                     return res;
+
+                case "Next":
+                    return next;
+
+                case "DecoratorFactory":
+                    return factory(data, ctx);
                 default:
                     null;
             }
         });
     }
 
+    /**
+     * 判断是否使用了 @Response 装饰器
+     */
     private getResponseMetaData(instance: any, methodName: string) {
         const paramsMetaData =
             Reflect.getMetadata("params", instance, methodName) ?? [];
-        return paramsMetaData.find(
-            (paramMetaData) =>
-                paramMetaData.key === "Response" || paramMetaData.key === "Res"
-        );
+        return paramsMetaData.find((paramMetaData) => {
+            return (
+                paramMetaData?.key === "Response" ||
+                paramMetaData?.key === "Res" ||
+                paramMetaData?.key === "Next"
+            );
+        });
     }
 
-    // 启动服务
+    /**
+     * 启动服务
+     */
     async listen(port: number) {
         await this.init();
         this.app.listen(port, () => {

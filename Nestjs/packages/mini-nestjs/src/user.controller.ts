@@ -11,11 +11,17 @@ import {
     Param,
     Body,
     Res,
+    Next,
+    Redirect,
+    HttpCode,
+    Header,
 } from "@nestjs/common";
 import {
     Request as ExpressRequest,
     Response as ExpressResponse,
+    NextFunction as ExpressNextFunction,
 } from "express";
+import { User } from "./user.decorator";
 
 @Controller("user")
 export class UserController {
@@ -85,7 +91,10 @@ export class UserController {
     }
 
     @Post("create")
-    createUser(@Body() createUserDto, @Body("username") username: string) {
+    @HttpCode(200)
+    @Header("Cache-Control", "none")
+    @Header("key1", "value1")
+    createUser(@Body() createUserDto: any, @Body("username") username: string) {
         console.log("createUserDto", createUserDto);
         console.log("username", username);
         return "user created";
@@ -100,5 +109,26 @@ export class UserController {
     passthrough(@Res({ passthrough: true }) res: ExpressResponse) {
         res.setHeader("key", "value");
         return "passthrough";
+    }
+
+    @Get("next")
+    next(@Next() next: ExpressNextFunction) {
+        next();
+    }
+
+    @Get("/redirect")
+    @Redirect("/user/req", 301)
+    handelRedirect() {}
+
+    @Get("/redirect2")
+    @Redirect("/user", 301)
+    handelRedirect2(@Query("version") version: string) {
+        return { url: `https://docs.nestjs.com/v${version}`, statusCode: 301 };
+    }
+
+    @Get("customParamDecorator")
+    @Redirect("/user/req", 301)
+    customParamDecorator(@User('role') user: any) {
+        return user;
     }
 }
