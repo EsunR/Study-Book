@@ -54,17 +54,17 @@ export class UserController {
 
     @Get("session")
     handleSession(
-        @Session() session: any,
-        @Session("pageView") pageView: string
+        @Session() session: Record<string, any>
+        // @Session("pageView") pageView: string
     ) {
         console.log("session", session);
-        console.log("pageView", pageView);
+        // console.log("pageView", pageView);
         if (session.pageView) {
             session.pageView++;
         } else {
             session.pageView = 1;
         }
-        return `session pageView: ${pageView}`;
+        return `session pageView: ${session.pageView}`;
     }
 
     @Get("ip")
@@ -128,7 +128,7 @@ export class UserController {
 
     @Get("customParamDecorator")
     @Redirect("/user/req", 301)
-    customParamDecorator(@User('role') user: any) {
+    customParamDecorator(@User("role") user: any) {
         return user;
     }
 }

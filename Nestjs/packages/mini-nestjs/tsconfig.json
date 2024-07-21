@@ -4,6 +4,7 @@
         "moduleResolution": "NodeNext",
         "module": "NodeNext",
         "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
         "baseUrl": "./",
         "paths": {
             "@nestjs/*": ["./src/@nestjs/*"]

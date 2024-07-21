@@ -8,7 +8,7 @@ export class Logger {
         const diffTime = new Date().valueOf() - this.timestamp;
         this.timestamp = new Date().valueOf();
         console.log(
-            `${clc.green("[Nest]")} ${clc.green(pid)}  - ${clc.yellow(
+            `${clc.green("[Mini Nest]")} ${clc.green(pid)}  - ${clc.yellow(
                 timestamp
             )}     ${clc.green("LOG")} ${clc.yellow(
                 `[${context}]`

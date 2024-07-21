@@ -7,14 +7,54 @@ import express, {
 } from "express";
 import path from "path";
 import { Logger } from "./logger";
+import { INJECTED_TOKENS, DESIGN_PARAMTYPES } from "@nestjs/common";
+import { LoggerService, UseValueService } from "src/logger.service";
 
 export class NestApplication {
     // 在内部私有化一个 Express 实例
     private readonly app: Express = express();
+    private providers = new Map();
 
     constructor(protected readonly module) {
         this.app.use(express.json()); // 解析 application/json
         this.app.use(express.urlencoded({ extended: true })); // 解析 application/x-www-form-urlencoded
+        this.initProviders(); // 注入 Providers
+    }
+
+    /**
+     * 对 Module 中声明的 providers 类进行实例化，并保存
+     */
+    initProviders() {
+        const providers: any[] =
+            Reflect.getMetadata("providers", this.module) ?? [];
+        for (const provider of providers) {
+            if (provider.provide && provider.useClass) {
+                const dependencies = this.resolveDependencies(
+                    provider.useClass
+                );
+                const classInstance = new provider.useClass(...dependencies);
+                this.providers.set(provider.provide, classInstance);
+            } else if (provider.provide && provider.useValue) {
+                // 提供的是一个值，则不需要容器帮助实例化，直接注册
+                this.providers.set(provider.provide, provider.useValue);
+            } else if (provider.provide && provider.useFactory) {
+                const inject: any[] = provider.inject || [];
+                // inject 值可以为一个字面量或者是一个 Token，如果是有效的 Token 则返回对应的依赖
+                const injectedValue = inject.map(this.getProviderByToken.bind(this));
+                // 提供的是一个工厂函数，调用工厂函数获取实例
+                this.providers.set(
+                    provider.provide,
+                    provider.useFactory(...injectedValue)
+                );
+            } else {
+                // 只提供了一个类，token 是这个类，值是这个类的实例
+                this.providers.set(provider, new provider());
+            }
+        }
+    }
+
+    use(middleware) {
+        this.app.use(middleware);
     }
 
     /**
@@ -25,7 +65,9 @@ export class NestApplication {
             Reflect.getMetadata("controllers", this.module) || [];
         Logger.log(`AppModule dependencies initialized`, "InstanceLoader");
         for (const Controller of controllers) {
-            const controller = new Controller();
+            const dependencies = this.resolveDependencies(Controller);
+            // 创建每个控制器的实例
+            const controller = new Controller(...dependencies);
             // 获取控制器的路径前缀
             const prefix = Reflect.getMetadata("prefix", Controller) || "/";
             Logger.log(`${Controller.name} {${prefix}}`, "RoutesResolver");
@@ -197,7 +239,23 @@ export class NestApplication {
         });
     }
 
-    use(middleware) {
-        this.app.use(middleware);
+    private getProviderByToken(injectedToken) {
+        return this.providers.get(injectedToken) ?? injectedToken;
+    }
+
+    /**
+     * 解析控制器的依赖
+     */
+    private resolveDependencies(Controller) {
+        // 获取使用 Inject 装饰器声明的依赖
+        const injectedTokens: any[] =
+            Reflect.getMetadata(INJECTED_TOKENS, Controller) ?? [];
+        // 获取构造函数的参数
+        const constructorParams: Function[] =
+            Reflect.getMetadata(DESIGN_PARAMTYPES, Controller) ?? [];
+        return constructorParams.map((param, index) => {
+            // 把每个 param 中的 token 默认转化成对应的 provider 值
+            return this.getProviderByToken(injectedTokens[index] ?? param);
+        });
     }
 }
