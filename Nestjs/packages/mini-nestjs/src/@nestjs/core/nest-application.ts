@@ -8,11 +8,12 @@ import express, {
 import path from "path";
 import { Logger } from "./logger";
 import { INJECTED_TOKENS, DESIGN_PARAMTYPES } from "@nestjs/common";
-import { LoggerService, UseValueService } from "src/logger.service";
 
 export class NestApplication {
     // 在内部私有化一个 Express 实例
     private readonly app: Express = express();
+    // 保存当前应用实例中所有的 providers，key 为 token，value 为 provider 实例
+    // TODO: 模块间的 Provider 隔离
     private providers = new Map();
 
     constructor(protected readonly module) {
@@ -25,31 +26,61 @@ export class NestApplication {
      * 对 Module 中声明的 providers 类进行实例化，并保存
      */
     initProviders() {
-        const providers: any[] =
-            Reflect.getMetadata("providers", this.module) ?? [];
-        for (const provider of providers) {
-            if (provider.provide && provider.useClass) {
-                const dependencies = this.resolveDependencies(
-                    provider.useClass
-                );
-                const classInstance = new provider.useClass(...dependencies);
-                this.providers.set(provider.provide, classInstance);
-            } else if (provider.provide && provider.useValue) {
-                // 提供的是一个值，则不需要容器帮助实例化，直接注册
-                this.providers.set(provider.provide, provider.useValue);
-            } else if (provider.provide && provider.useFactory) {
-                const inject: any[] = provider.inject || [];
-                // inject 值可以为一个字面量或者是一个 Token，如果是有效的 Token 则返回对应的依赖
-                const injectedValue = inject.map(this.getProviderByToken.bind(this));
-                // 提供的是一个工厂函数，调用工厂函数获取实例
-                this.providers.set(
-                    provider.provide,
-                    provider.useFactory(...injectedValue)
-                );
-            } else {
-                // 只提供了一个类，token 是这个类，值是这个类的实例
-                this.providers.set(provider, new provider());
+        const imports = Reflect.getMetadata("imports", this.module) || [];
+        // 获取导入模块中的 providers
+        for (const importModule of imports) {
+            const importedProviders =
+                Reflect.getMetadata("providers", importModule) || [];
+            for (const provider of importedProviders) {
+                this.addProvider(provider);
             }
+        }
+        // 获取当前模块中的 providers
+        const providers = Reflect.getMetadata("providers", this.module) || [];
+        for (const provider of providers) {
+            this.addProvider(provider);
+        }
+    }
+
+    /**
+     * 向 Nest Application 全局添加 provider
+     */
+    addProvider(provider) {
+        const injectToken = provider.provide ?? provider;
+        // 如果已经存在了，直接返回，避免循环依赖
+        if (this.providers.has(injectToken)) {
+            return;
+        }
+        // 如果有 provider 的 token，并且有 useClass 属性，说明提供的是一个类，需要实例化
+        if (provider.provide && provider.useClass) {
+            const Clazz = provider.useClass;
+            // 获取类的依赖
+            const dependencies = this.resolveDependencies(Clazz);
+            // 将依赖传入类的构造函数，实例化类
+            const classInstance = new Clazz(...dependencies);
+            this.providers.set(provider.provide, classInstance);
+        }
+        // 如果提供的是一个值，则直接保存到 Map 中
+        else if (provider.provide && provider.useValue) {
+            this.providers.set(provider.provide, provider.useValue);
+        }
+        // 如果提供的是一个工厂函数，则调用工厂函数获取实例
+        else if (provider.provide && provider.useFactory) {
+            // 获取要注入工厂函数的参数
+            const inject = provider.inject || [];
+            // 获取参数对应的 provider 实例
+            const injectedValues = inject.map((token) =>
+                this.getProviderByToken(token)
+            );
+            // 调用工厂函数获取实例
+            const value = provider.useFactory(...injectedValues);
+            this.providers.set(provider.provide, value);
+        }
+        // 如果没有提供 token，则直接实例化，并将类本身作为 token 保存到 Map 中
+        else {
+            const dependencies = this.resolveDependencies(provider);
+            const classInstance = new provider(...dependencies);
+            this.providers.set(provider, classInstance);
         }
     }
 

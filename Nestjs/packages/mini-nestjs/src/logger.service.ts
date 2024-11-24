@@ -13,7 +13,7 @@ export class LoggerService {
         console.log("LoggerService constructor", suffix);
     }
     log(message: string) {
-        console.log("LoggerService", message);
+        console.log("LoggerService", message, this.suffix);
     }
 }
 
@@ -26,8 +26,8 @@ export class UseValueService {
 
 @Injectable()
 export class UseFactory {
-    constructor(prefix1, prefix2) {
-        console.log("UseFactory constructor", prefix1, prefix2);
+    constructor() {
+        console.log("UseFactory constructor");
     }
     log(message: string) {
         console.log("UseFactory", message);
