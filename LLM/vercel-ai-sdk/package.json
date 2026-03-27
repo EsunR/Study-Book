@@ -1,0 +1,39 @@
+{
+  "name": "aisdk-learning",
+  "version": "1.0.0",
+  "description": "Vercel AI SDK 学习项目",
+  "type": "module",
+  "scripts": {
+    "dev:01": "tsx 01-basics",
+    "dev:02": "tsx 02-frontend-integration",
+    "dev:03": "tsx 03-advanced",
+    "dev:04": "tsx 04-production",
+    "dev:05": "tsx 05-agent-lab",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "keywords": [
+    "ai",
+    "vercel",
+    "ai-sdk"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@ai-sdk/openai": "^3.0.48",
+    "@ai-sdk/openai-compatible": "^2.0.37",
+    "ai": "^6.0.138",
+    "dotenv": "^17.3.1",
+    "playwright": "^1.58.2",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "eslint": "^10.1.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.8.1",
+    "puppeteer": "^24.40.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "outDir": "./dist",
+    "rootDir": ".",
+    "resolveJsonModule": true,
+    "declaration": true
+  },
+  "include": ["01-basics/**/*", "02-frontend-integration/**/*", "03-advanced/**/*", "04-production/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
