@@ -2,6 +2,25 @@
 
 > 学习 AI SDK UI 模块，使用 React Hooks 快速构建 AI 交互界面。
 
+## 快速开始
+
+```bash
+# 进入 demo 目录
+cd demo
+
+# 安装依赖（如果还没安装）
+npm install
+
+# 配置环境变量
+# 编辑 .env.local 文件，填入你的 API Key
+# OPENAI_API_KEY=your_api_key_here
+
+# 启动开发服务器
+npm run dev
+```
+
+访问 http://localhost:3000 查看示例。
+
 ## 学习目标
 
 - 掌握 `useChat` 构建聊天应用

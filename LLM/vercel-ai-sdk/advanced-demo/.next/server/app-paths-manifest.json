@@ -1,0 +1,7 @@
+{
+  "/api/object/route": "app/api/object/route.js",
+  "/chat/page": "app/chat/page.js",
+  "/completion/page": "app/completion/page.js",
+  "/object/page": "app/object/page.js",
+  "/page": "app/page.js"
+}

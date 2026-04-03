@@ -9,6 +9,9 @@
     "dev:03": "tsx 03-advanced",
     "dev:04": "tsx 04-production",
     "dev:05": "tsx 05-agent-lab",
+    "demo:dev": "cd advanced-demo && next dev --turbopack",
+    "demo:build": "cd advanced-demo && next build",
+    "demo:start": "cd advanced-demo && next start",
     "lint": "eslint .",
     "format": "prettier --write ."
   },
@@ -22,17 +25,28 @@
   "dependencies": {
     "@ai-sdk/openai": "^3.0.48",
     "@ai-sdk/openai-compatible": "^2.0.37",
-    "ai": "^6.0.138",
+    "@ai-sdk/react": "^3.0.142",
+    "ai": "^6.0.140",
     "dotenv": "^17.3.1",
+    "next": "^15.2.4",
     "playwright": "^1.58.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "undici": "^8.0.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.2",
     "@types/node": "^25.5.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "autoprefixer": "^10.4.27",
     "eslint": "^10.1.0",
     "eslint-config-prettier": "^10.1.8",
+    "postcss": "^8.5.8",
     "prettier": "^3.8.1",
     "puppeteer": "^24.40.0",
+    "tailwindcss": "^4.2.2",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2"
   }

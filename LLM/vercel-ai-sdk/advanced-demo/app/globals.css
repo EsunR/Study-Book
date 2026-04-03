@@ -1,0 +1,174 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --primary: #0070f3;
+  --primary-dark: #0051cc;
+  --border: #e5e5e5;
+  --card-bg: #f9f9f9;
+  --code-bg: #f4f4f4;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+    --primary: #3391ff;
+    --primary-dark: #1a7cff;
+    --border: #333;
+    --card-bg: #111;
+    --code-bg: #1a1a1a;
+  }
+}
+
+html,
+body {
+  @apply h-full;
+}
+
+body {
+  @apply text-foreground bg-background;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  @apply m-0 p-0;
+}
+
+* {
+  @apply box-border;
+}
+
+a {
+  @apply text-primary no-underline;
+}
+
+a:hover {
+  @apply underline;
+}
+
+pre {
+  @apply bg-code-bg p-4 rounded-md overflow-x-auto text-sm;
+}
+
+code {
+  font-family: 'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', monospace;
+}
+
+input, textarea {
+  @apply w-full p-3 border border-border rounded-md text-base bg-background text-foreground;
+}
+
+select {
+  @apply w-full p-3 border border-border rounded-md text-base bg-background text-foreground;
+}
+
+/* 自定义颜色工具类 */
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-border: var(--border);
+  --color-card-bg: var(--card-bg);
+  --color-code-bg: var(--code-bg);
+}
+
+/* 聊天消息样式 */
+.chat-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.message {
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  max-width: 80%;
+}
+
+.message.user {
+  background: var(--primary);
+  color: white;
+  margin-left: auto;
+}
+
+.message.assistant {
+  background: var(--card-bg);
+  color: var(--foreground);
+}
+
+/* 输入框样式 */
+.input-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px;
+  background: var(--background);
+  border-top: 1px solid var(--border);
+}
+
+.input-form {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  gap: 12px;
+}
+
+.input-form input,
+.input-form textarea {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 16px;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.input-form button {
+  padding: 12px 24px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.input-form button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 加载动画 */
+.loading {
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+}
+
+.loading span {
+  width: 8px;
+  height: 8px;
+  background: var(--primary);
+  border-radius: 50%;
+  animation: bounce 1s infinite;
+}
+
+.loading span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}

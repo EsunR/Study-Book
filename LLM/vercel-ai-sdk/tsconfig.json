@@ -11,6 +11,6 @@
     "resolveJsonModule": true,
     "declaration": true
   },
-  "include": ["01-basics/**/*", "02-frontend-integration/**/*", "03-advanced/**/*", "04-production/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["01-basics/**/*", "02-frontend-integration/**/*", "03-advanced/**/*", "04-production/**/*", "05-agent-lab/**/*", "advanced-demo/**/*"],
+  "exclude": ["node_modules", "dist", "advanced-demo/node_modules", "advanced-demo/.next"]
 }
