@@ -19,8 +19,8 @@
     "static/chunks/node_modules_next_dist_client_cf1d9188._.js",
     "static/chunks/node_modules_next_dist_b0daae9a._.js",
     "static/chunks/node_modules_@swc_helpers_cjs_b3dc30d6._.js",
-    "static/chunks/advanced-demo_a0ff3932._.js",
-    "static/chunks/turbopack-advanced-demo_cdba956c._.js"
+    "static/chunks/demo_a0ff3932._.js",
+    "static/chunks/turbopack-demo_cdba956c._.js"
   ],
   "ampFirstPages": []
 }
