@@ -2,7 +2,7 @@ backports.shutil-get-terminal-size==1.0.0
 colorama==0.4.1
 decorator==4.4.0
 enum34==1.1.6
-Flask==0.10.1
+Flask==1.0
 Flask-MySQLdb==0.2.0
 Flask-SQLAlchemy==2.4.0
 ipython==5.4.0
